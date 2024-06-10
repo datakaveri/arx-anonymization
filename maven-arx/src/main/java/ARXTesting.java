@@ -13,7 +13,6 @@ public class ARXTesting {
 
         Data dataset = Data.create("/Users/shashankpandey/IdeaProjects/arx-attempt/maven-arx/src/main/java/categoricalDatasetProcessed_fin_TEL_bounds_corrected_1_22.csv", Charset.defaultCharset(), ',');
 
-
         HierarchyBuilderIntervalBased<Double> builder_long = HierarchyBuilderIntervalBased.create(DataType.DECIMAL);
 
         for (double i = 77.0; i<82.0; i+=0.5){
@@ -51,54 +50,74 @@ public class ARXTesting {
         dataset.getDefinition().setAttributeType("Longitude", builder_long);
         dataset.getDefinition().setAttributeType("Latitude", builder_lat);
 
-        ARXConfiguration config = ARXConfiguration.create();
-        config.addPrivacyModel(new KAnonymity(5));
-        config.setSuppressionLimit(0.00d);
+        int k = 2;
+        int[] colList = new int[]{2,23,22,21};
+        List<String> colNames = new ArrayList<String>();
 
-        ARXSolverConfiguration.create();
+        for (int i = 0; i<colList.length; i++){
+            colNames.add(dataset.getHandle().getAttributeName(colList[i]));
+        }
 
-        ARXAnonymizer anonymizer = new ARXAnonymizer();
+        for (int i = 0; i<4; i++){
 
-        ARXResult result = anonymizer.anonymize(dataset, config);
+            if (i>0){
+                for (int l = 0; l<i; l++){
+                    dataset.getDefinition().setAttributeType(colNames.get(l),AttributeType.IDENTIFYING_ATTRIBUTE);
+                }
+            }
 
-        DataHandle handle = result.getOutput();
-        DataHandle view = handle.getView();
+            ARXConfiguration config = ARXConfiguration.create();
 
-        System.out.println(view);
+            config.addPrivacyModel(new KAnonymity(k));
+            config.setSuppressionLimit(0.00d);
 
-        StatisticsFrequencyDistribution districtRes = view.getStatistics().getFrequencyDistribution(22);
+            ARXSolverConfiguration.create();
 
-        String[] sortedVals  = districtRes.values;
-        double[] sortedCounts = districtRes.frequency;
+            ARXAnonymizer anonymizer = new ARXAnonymizer();
+            dataset.getHandle().release();
 
-        List<String> valList = new ArrayList<>();
-        List<Double> countList = new ArrayList<>();
+            System.out.println('\n');
+            System.out.println("k-anonymity for k: "+k+" || Generalizing on: "+colNames.get(i));
 
-        List<Pair<String, Double>> pairList = new ArrayList<>();
+            ARXResult result = anonymizer.anonymize(dataset, config);
+
+            DataHandle handle = result.getOutput();
+            DataHandle view = handle.getView();
+
+
+            StatisticsFrequencyDistribution anonResult = view.getStatistics().getFrequencyDistribution(colList[i]);
+
+            String[] vals  = anonResult.values;
+            double[] counts = anonResult.frequency;
+
+            List<String> valList = new ArrayList<>();
+            List<Double> countList = new ArrayList<>();
+
+            List<Pair<String, Double>> pairList = new ArrayList<>();
         //List<OutputVals> dist_freq = new List<OutputVals>();
 
 
         //Map<String, Double> dist_freq= new HashMap<String, Double>();
-        for(int i = 0; i<sortedVals.length; i++){
+            for(int j = 0; j<vals.length; j++){
            // dist_freq.put(sortedVals[i],sortedCounts[i]);
-            valList.add(sortedVals[i]);
-            countList.add(sortedCounts[i]);
-            pairList.add(new Pair<>(sortedVals[i],sortedCounts[i]));
+                valList.add(vals[j]);
+                countList.add(counts[j]);
+                pairList.add(new Pair<>(vals[j],counts[j]));
+
+            }
+            Collections.sort(pairList, Comparator.comparing(Pair::getValue));
+
+            if ((pairList.get(0).getValue())*anonResult.count >= k){
+                String fileName = "categoricalDataset_"+k+"Anonymized_"+handle.getAttributeName(colList[i])+"level.csv";
+                System.out.println("k-anonymity successful for k: "+k+", on "+ handle.getAttributeName(colList[i])+", saving dataset as categoricalDataset_"+k+"Anonymized_"+handle.getAttributeName(colList[i])+"level.csv");
+                handle.save(fileName,',');
+            }
+            else {
+                System.out.println("k-anonymity failed for k: "+k+", on "+ handle.getAttributeName(colList[i]));
+                continue;
+            }
 
         }
-        Collections.sort(pairList, Comparator.comparing(Pair::getValue));
-
-        List<String> sortedValues = new ArrayList<>();
-        List<Double> sortedCountss = new ArrayList<>();
-
-        for (Pair<String, Double> pair : pairList) {
-            sortedValues.add(pair.getKey());
-            sortedCountss.add(pair.getValue()*districtRes.count);
-
-            System.out.println(pair.getKey());
-            System.out.println(pair.getValue()*districtRes.count);
-        }
-
     }
 
     static class Pair<K, V> {
