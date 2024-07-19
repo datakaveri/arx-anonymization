@@ -1,125 +1,247 @@
 import org.deidentifier.arx.*;
-import org.deidentifier.arx.aggregates.HierarchyBuilder;
-import org.deidentifier.arx.aggregates.HierarchyBuilderIntervalBased;
 import org.deidentifier.arx.aggregates.StatisticsFrequencyDistribution;
 import org.deidentifier.arx.criteria.KAnonymity;
+import org.deidentifier.arx.metric.Metric;
 
-import java.util.*;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.*;
 
 public class ARXTesting {
+
     public static void main(String[] args) throws IOException {
+        Properties properties = loadProperties("/home/kailash/Desktop/arx-anonymization/maven-arx/src/main/java/config.properties");
 
-        Data dataset = Data.create("/Users/shashankpandey/IdeaProjects/arx-attempt/maven-arx/src/main/java/categoricalDatasetProcessed_fin_TEL_bounds_corrected_1_22.csv", Charset.defaultCharset(), ',');
+        String datasetPath = properties.getProperty("dataset.path");
+        Charset charset = Charset.forName(properties.getProperty("dataset.charset"));
+        char delimiter = properties.getProperty("delimiter").charAt(0);
 
-        HierarchyBuilderIntervalBased<Double> builder_long = HierarchyBuilderIntervalBased.create(DataType.DECIMAL);
+        // Print columns in the dataset
+        printDatasetColumns(datasetPath, charset, delimiter);
 
-        for (double i = 77.0; i<82.0; i+=0.5){
-            builder_long.addInterval(i,i+0.5);
+        // Parse column hierarchy configuration
+        Map<String, Integer> hierarchyLevels = new HashMap<>();
+        Map<String, Double> intervalWidths = new HashMap<>();
+        parseColumnHierarchyConfig(properties.getProperty("columns.hierarchy").split(","), hierarchyLevels, intervalWidths);
+
+        int k = Integer.parseInt(properties.getProperty("k.anonymity"));
+        double suppressionLimit = Double.parseDouble(properties.getProperty("suppression.limit"));
+
+        // Set up and anonymize the dataset using Loss Metric (LM)
+        setupAndAnonymizeDataset("Loss Metric (LM)", datasetPath, charset, delimiter, hierarchyLevels, intervalWidths, properties, k, suppressionLimit, Metric.createLossMetric());
+        // Set up and anonymize the dataset using Discernability Metric (DM*)
+        setupAndAnonymizeDataset("Discernability Metric (DM*)", datasetPath, charset, delimiter, hierarchyLevels, intervalWidths, properties, k, suppressionLimit, Metric.createDiscernabilityMetric());
+    }
+
+    /**
+     * Loads properties from a configuration file.
+     *
+     * @param filePath Path to the configuration file.
+     * @return Properties object containing configuration properties.
+     * @throws IOException If an I/O error occurs.
+     */
+    private static Properties loadProperties(String filePath) throws IOException {
+        Properties properties = new Properties();
+        try (FileInputStream inputStream = new FileInputStream(filePath)) {
+            properties.load(inputStream);
         }
+        return properties;
+    }
 
-        builder_long.getLevel(0).addGroup(1);
-        builder_long.getLevel(1).addGroup(2);
-        builder_long.getLevel(2).addGroup(2);
-        builder_long.getLevel(3).addGroup(2);
-
-        HierarchyBuilderIntervalBased<Double> builder_lat = HierarchyBuilderIntervalBased.create(DataType.DECIMAL);
-
-        for (double i = 15.0; i<20.0; i+=0.5){
-            builder_lat.addInterval(i,i+0.5);
-        }
-
-        builder_lat.getLevel(0).addGroup(1);
-        builder_lat.getLevel(1).addGroup(2);
-        builder_lat.getLevel(2).addGroup(2);
-        builder_lat.getLevel(3).addGroup(2);
-
-        String[] identifying = new String[]{"Record","FarmerName","LandArea","KhasraNo./DagNo.","SurveyNo"};
-
-        for (int i = 0; i<identifying.length; i++){
-            dataset.getDefinition().setAttributeType(identifying[i],AttributeType.IDENTIFYING_ATTRIBUTE);
-        }
-
-        String[] insensitive = new String[]{"SampleNo.","village","pH","EC","OC","N","P","K","S","Zn","Fe","Cu","Mn","B","state","district","subdistrict","cycle"};
-
-        for (int i = 0; i<insensitive.length; i++){
-            dataset.getDefinition().setAttributeType(insensitive[i],AttributeType.INSENSITIVE_ATTRIBUTE);
-        }
-
-        dataset.getDefinition().setAttributeType("Longitude", builder_long);
-        dataset.getDefinition().setAttributeType("Latitude", builder_lat);
-
-        int k = 2;
-        int[] colList = new int[]{2,23,22,21};
-        List<String> colNames = new ArrayList<String>();
-
-        for (int i = 0; i<colList.length; i++){
-            colNames.add(dataset.getHandle().getAttributeName(colList[i]));
-        }
-
-        for (int i = 0; i<4; i++){
-
-            if (i>0){
-                for (int l = 0; l<i; l++){
-                    dataset.getDefinition().setAttributeType(colNames.get(l),AttributeType.IDENTIFYING_ATTRIBUTE);
-                }
-            }
-
-            ARXConfiguration config = ARXConfiguration.create();
-
-            config.addPrivacyModel(new KAnonymity(k));
-            config.setSuppressionLimit(0.00d);
-
-            ARXSolverConfiguration.create();
-
-            ARXAnonymizer anonymizer = new ARXAnonymizer();
-            dataset.getHandle().release();
-
-            System.out.println('\n');
-            System.out.println("k-anonymity for k: "+k+" || Generalizing on: "+colNames.get(i));
-
-            ARXResult result = anonymizer.anonymize(dataset, config);
-
-            DataHandle handle = result.getOutput();
-            DataHandle view = handle.getView();
-
-
-            StatisticsFrequencyDistribution anonResult = view.getStatistics().getFrequencyDistribution(colList[i]);
-
-            String[] vals  = anonResult.values;
-            double[] counts = anonResult.frequency;
-
-            List<String> valList = new ArrayList<>();
-            List<Double> countList = new ArrayList<>();
-
-            List<Pair<String, Double>> pairList = new ArrayList<>();
-        //List<OutputVals> dist_freq = new List<OutputVals>();
-
-
-        //Map<String, Double> dist_freq= new HashMap<String, Double>();
-            for(int j = 0; j<vals.length; j++){
-           // dist_freq.put(sortedVals[i],sortedCounts[i]);
-                valList.add(vals[j]);
-                countList.add(counts[j]);
-                pairList.add(new Pair<>(vals[j],counts[j]));
-
-            }
-            Collections.sort(pairList, Comparator.comparing(Pair::getValue));
-
-            if ((pairList.get(0).getValue())*anonResult.count >= k){
-                String fileName = "categoricalDataset_"+k+"Anonymized_"+handle.getAttributeName(colList[i])+"level.csv";
-                System.out.println("k-anonymity successful for k: "+k+", on "+ handle.getAttributeName(colList[i])+", saving dataset as categoricalDataset_"+k+"Anonymized_"+handle.getAttributeName(colList[i])+"level.csv");
-                handle.save(fileName,',');
-            }
-            else {
-                System.out.println("k-anonymity failed for k: "+k+", on "+ handle.getAttributeName(colList[i]));
-                continue;
-            }
-
+    /**
+     * Prints the columns of a dataset.
+     *
+     * @param datasetPath Path to the dataset.
+     * @param charset Charset of the dataset.
+     * @param delimiter Delimiter used in the dataset.
+     * @throws IOException If an I/O error occurs.
+     */
+    private static void printDatasetColumns(String datasetPath, Charset charset, char delimiter) throws IOException {
+        Data dataset = Data.create(datasetPath, charset, delimiter);
+        System.out.println("Columns in the dataset:");
+        for (int i = 0; i < dataset.getHandle().getNumColumns(); i++) {
+            System.out.println(i + ": " + dataset.getHandle().getAttributeName(i));
         }
     }
 
+    /**
+     * Parses the column hierarchy configuration and populates the hierarchy levels and interval widths.
+     *
+     * @param columnHierarchyConfig Array of column hierarchy configurations.
+     * @param hierarchyLevels Map to store hierarchy levels.
+     * @param intervalWidths Map to store interval widths.
+     */
+    private static void parseColumnHierarchyConfig(String[] columnHierarchyConfig, Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths) {
+        for (String config : columnHierarchyConfig) {
+            String[] parts = config.split(":");
+            String columnName = parts[0];
+            int numLevels = Integer.parseInt(parts[1]);
+            double intervalWidth = Double.parseDouble(parts[2]);
+            hierarchyLevels.put(columnName, numLevels);
+            intervalWidths.put(columnName, intervalWidth);
+        }
+    }
+
+    /**
+     * Sets up and anonymizes the dataset with the given configuration and metric type.
+     *
+     * @param metricType Type of metric used for anonymization.
+     * @param datasetPath Path to the dataset.
+     * @param charset Charset of the dataset.
+     * @param delimiter Delimiter used in the dataset.
+     * @param hierarchyLevels Map of hierarchy levels.
+     * @param intervalWidths Map of interval widths.
+     * @param properties Properties object containing configuration properties.
+     * @param k Value of k for k-anonymity.
+     * @param suppressionLimit Suppression limit for anonymization.
+     * @param metric Metric used for anonymization.
+     * @throws IOException If an I/O error occurs.
+     */
+    private static void setupAndAnonymizeDataset(String metricType, String datasetPath, Charset charset, char delimiter,
+                                                 Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths,
+                                                 Properties properties, int k, double suppressionLimit, Metric<?> metric) throws IOException {
+        Data dataset = Data.create(datasetPath, charset, delimiter);
+        setupDataset(dataset, hierarchyLevels, intervalWidths, properties);
+
+        ARXConfiguration config = createARXConfiguration(k, suppressionLimit, metric);
+        anonymizeAndAnalyze(metricType, dataset, config);
+    }
+
+    /**
+     * Sets up the dataset by building hierarchies and setting attribute types.
+     *
+     * @param dataset Dataset to set up.
+     * @param hierarchyLevels Map of hierarchy levels.
+     * @param intervalWidths Map of interval widths.
+     * @param properties Properties object containing configuration properties.
+     * @throws IOException If an I/O error occurs.
+     */
+    private static void setupDataset(Data dataset, Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths, Properties properties) throws IOException {
+        HierarchyBuilderUtil.buildHierarchies(dataset, hierarchyLevels, intervalWidths);
+        setAttributes(dataset, properties.getProperty("identifying.columns").split(","), AttributeType.IDENTIFYING_ATTRIBUTE);
+        setAttributes(dataset, properties.getProperty("insensitive.columns").split(","), AttributeType.INSENSITIVE_ATTRIBUTE);
+    }
+
+    /**
+     * Sets attribute types for the specified columns in the dataset.
+     *
+     * @param dataset Dataset in which to set attribute types.
+     * @param columns Array of column names.
+     * @param type Attribute type to set.
+     */
+    private static void setAttributes(Data dataset, String[] columns, AttributeType type) {
+        for (String attribute : columns) {
+            dataset.getDefinition().setAttributeType(attribute, type);
+        }
+    }
+
+    /**
+     * Creates an ARX configuration with the specified k-anonymity, suppression limit, and metric.
+     *
+     * @param k Value of k for k-anonymity.
+     * @param suppressionLimit Suppression limit for anonymization.
+     * @param metric Metric used for anonymization.
+     * @return ARXConfiguration object.
+     */
+    private static ARXConfiguration createARXConfiguration(int k, double suppressionLimit, Metric<?> metric) {
+        ARXConfiguration config = ARXConfiguration.create();
+        config.addPrivacyModel(new KAnonymity(k));
+        config.setSuppressionLimit(suppressionLimit);
+        config.setQualityModel(metric);
+        return config;
+    }
+
+    /**
+     * Anonymizes and analyzes the dataset using the specified metric type and configuration.
+     *
+     * @param metricType Type of metric used for anonymization.
+     * @param dataset Dataset to anonymize.
+     * @param config ARX configuration for anonymization.
+     * @throws IOException If an I/O error occurs.
+     */
+    private static void anonymizeAndAnalyze(String metricType, Data dataset, ARXConfiguration config) throws IOException {
+        ARXAnonymizer anonymizer = new ARXAnonymizer();
+        ARXResult result = anonymizer.anonymize(dataset, config);
+        ARXLattice.ARXNode transformation = result.getGlobalOptimum();
+
+        System.out.println("Optimum Node used for anonymizing using " + metricType + ": " + Arrays.toString(transformation.getTransformation()));
+
+        Map<String, Integer> anonymizationLevels = getAnonymizationLevels(dataset, transformation);
+        analyzeColumns(result.getOutput(), anonymizationLevels, transformation);
+    }
+
+    /**
+     * Retrieves the anonymization levels for each column in the dataset.
+     *
+     * @param dataset Dataset for which to retrieve anonymization levels.
+     * @param transformation ARX transformation node.
+     * @return Map of anonymization levels for each column.
+     */
+    private static Map<String, Integer> getAnonymizationLevels(Data dataset, ARXLattice.ARXNode transformation) {
+        Map<String, Integer> anonymizationLevels = new HashMap<>();
+        for (int i = 0; i < dataset.getHandle().getNumColumns(); i++) {
+            String columnName = dataset.getHandle().getAttributeName(i);
+            anonymizationLevels.put(columnName, transformation.getGeneralization(columnName));
+        }
+        return anonymizationLevels;
+    }
+
+    /**
+     * Analyzes and prints the frequency distribution for a specified column in the dataset.
+     *
+     * @param handle Data handle for the anonymized dataset.
+     * @param anonymizationLevels Map of anonymization levels for each column.
+     * @param transformation ARX transformation node.
+     */
+    private static void analyzeColumns(DataHandle handle, Map<String, Integer> anonymizationLevels, ARXLattice.ARXNode transformation) {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.print("Enter the index of the column to analyze (or type 'exit' to quit): ");
+            String input = scanner.nextLine();
+
+            if (input.equalsIgnoreCase("exit")) {
+                break;
+            }
+
+            try {
+                int columnIndex = Integer.parseInt(input);
+                StatisticsFrequencyDistribution freqDist = handle.getStatistics().getFrequencyDistribution(columnIndex);
+                String[] values = freqDist.values;
+                double[] frequencies = freqDist.frequency;
+
+                List<Pair<String, Double>> pairList = new ArrayList<>();
+                for (int i = 0; i < values.length; i++) {
+                    pairList.add(new Pair<>(values[i], frequencies[i]));
+                }
+
+                pairList.sort(Comparator.comparing(Pair::getValue));
+
+                System.out.println("Frequency distribution for column: " + handle.getAttributeName(columnIndex));
+                for (Pair<String, Double> pair : pairList) {
+                    System.out.println(pair.getKey() + ": " + pair.getValue() * freqDist.count);
+                }
+
+                String columnName = handle.getAttributeName(columnIndex);
+                if (anonymizationLevels.containsKey(columnName)) {
+                    int actualLevel = transformation.getGeneralization(columnName);
+                    System.out.println("Anonymization level for column " + columnName + ": " + actualLevel);
+                } else {
+                    System.out.println("No anonymization level set for column " + columnName);
+                }
+
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid column index or 'exit' to quit.");
+            }
+        }
+    }
+
+    /**
+     * A simple Pair class to hold key-value pairs.
+     *
+     * @param <K> Type of the key.
+     * @param <V> Type of the value.
+     */
     static class Pair<K, V> {
         private final K key;
         private final V value;
@@ -137,5 +259,4 @@ public class ARXTesting {
             return value;
         }
     }
-
 }

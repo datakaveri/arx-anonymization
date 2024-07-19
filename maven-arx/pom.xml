@@ -23,7 +23,7 @@
             <artifactId>arx</artifactId>
             <version>3.9.1</version>
             <scope>system</scope>
-            <systemPath>/Users/shashankpandey/IdeaProjects/arx-attempt/lib/libarx-3.9.1.jar</systemPath>
+            <systemPath>/home/kailash/Desktop/arx-anonymization/lib/libarx-3.9.1.jar</systemPath>
         </dependency>
     </dependencies>
 
