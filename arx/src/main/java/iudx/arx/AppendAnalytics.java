@@ -1,0 +1,41 @@
+package iudx.arx;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONException;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.io.FileWriter;
+
+public class AppendAnalytics {
+
+    public static void main(String[] args) {
+        String anonymizedOutputPath = "anonymized_output.json";
+        String analyticsPath = "analytics.json";
+
+        try {
+
+            String anonymizedOutputContent = new String(Files.readAllBytes(Paths.get(anonymizedOutputPath)));
+            JSONArray anonymizedOutputArray = new JSONArray(anonymizedOutputContent);
+            String analyticsContent = new String(Files.readAllBytes(Paths.get(analyticsPath)));
+            JSONObject analyticsObject = new JSONObject(analyticsContent);
+
+            JSONObject analyticsEntry = new JSONObject();
+            analyticsEntry.put("analytics", analyticsObject.getJSONObject("analytics"));
+
+
+            anonymizedOutputArray.put(analyticsEntry);
+
+            try (FileWriter fileWriter = new FileWriter(anonymizedOutputPath)) {
+                fileWriter.write(anonymizedOutputArray.toString(4)); // Pretty print with an indent of 4 spaces
+            }
+
+            System.out.println("Analytics data has been successfully added to anonymized_output.json.");
+
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+    }
+}

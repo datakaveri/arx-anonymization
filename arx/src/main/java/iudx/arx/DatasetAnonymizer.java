@@ -32,7 +32,7 @@ public class DatasetAnonymizer {
         String[] attributesToPseudonymize = properties.getProperty("pseudonymize").split(",");
         Suppress.suppression(datasetPath, attributesToSuppress);
         Pseudonymize.pseudonymization(datasetPath, attributesToPseudonymize);
-        Data dataset = Data.create("/home/shivanit/Documents/P3DX/test_arx_api/arx/pseudonymized.csv", charset, delimiter);
+        Data dataset = Data.create("/home/kailash/Desktop/arx-anonymization/arx/pseudonymized.csv", charset, delimiter);
         setupDataset(dataset, hierarchyLevels, intervalWidths, properties, sizes);
         ARXConfiguration config = createARXConfiguration(k, suppressionLimit, metric);
         json_response = anonymizeAndAnalyze(metricType, dataset, config);
@@ -70,7 +70,8 @@ public class DatasetAnonymizer {
         DataHandle outputhandle = result.getOutput();
         json_response = outputAnonymizedDataset(outputhandle);
         ARXLattice.ARXNode transformation = result.getGlobalOptimum();
-        System.out.println("Node used for anonymizing using " + metricType + ": " + Arrays.toString(transformation.getTransformation()));
+        DataAnalysis.analytics(result);
+        AppendAnalytics.main(new String[]{});
         return json_response;
     }
 
@@ -78,7 +79,7 @@ public class DatasetAnonymizer {
         List<Map<String, Object>> result = new ArrayList<>();
         CsvParserSettings parserSettings = new CsvParserSettings();
         CsvParser parser2 = new CsvParser(parserSettings);
-        List<String[]> allRows2 = parser2.parseAll(new File("/home/shivanit/Documents/P3DX/test_arx_api/arx/pseudonymized.csv"));
+        List<String[]> allRows2 = parser2.parseAll(new File("/home/kailash/Desktop/arx-anonymization/arx/pseudonymized.csv"));
         String[] headers = (String[])allRows2.get(0);
 
         for(int rowIndex = 0; rowIndex < handle.getNumRows(); ++rowIndex) {
@@ -90,7 +91,7 @@ public class DatasetAnonymizer {
                 rowMap.put(columnName, value);
             }
 
-            result.add(rowMap); 
+            result.add(rowMap);
         }
 
         FileWriter fileWriter = new FileWriter("anonymized_output.json");
@@ -108,7 +109,7 @@ public class DatasetAnonymizer {
         }
 
         fileWriter.close();
-        handle.save(new File("/home/shivanit/Documents/P3DX/test_arx_api/arx/anonymized_datset.csv"), ',');
+        handle.save(new File("anonymized_datset.csv"), ',');
         System.out.println("Anonymized dataset saved to /home/shivanit/Documents/P3DX/test_arx_api/arx/anonymized_datset.csv");
         return result;
     }

@@ -8,11 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 import org.deidentifier.arx.metric.Metric;
 
 public class Main {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
-        Properties properties = ConfigLoader.loadProperties("/home/shivanit/Documents/P3DX/arx_repo_symposium/arx_anonymization/maven_arx/src/main/java/config.properties");
+        Properties properties = ConfigLoader.loadProperties("/home/kailash/Desktop/arx-anonymization/arx/src/main/java/iudx/arx/config.properties");
         String datasetPath = properties.getProperty("dataset.path");
         Charset charset = Charset.forName(properties.getProperty("dataset.charset"));
         char delimiter = properties.getProperty("delimiter").charAt(0);
