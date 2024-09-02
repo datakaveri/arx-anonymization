@@ -12,8 +12,8 @@ import java.io.FileWriter;
 public class AppendAnalytics {
 
     public static void main(String[] args) {
-        String anonymizedOutputPath = "anonymized_output.json";
-        String analyticsPath = "analytics.json";
+        String anonymizedOutputPath = "/home/kailash/Desktop/arx_anonymization/arx/anonymized_output.json";
+        String analyticsPath = "/home/kailash/Desktop/arx_anonymization/arx/analytics.json";
 
         try {
             // Read the content of anonymized_output.json

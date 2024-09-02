@@ -24,6 +24,8 @@ import org.deidentifier.arx.criteria.KAnonymity;
 import org.deidentifier.arx.metric.Metric;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class DatasetAnonymizer {
     public static List<Map<String, Object>> setupAndAnonymizeDataset(String metricType, String datasetPath, Charset charset, char delimiter, Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths, List<Integer> sizes, Properties properties, int k, double suppressionLimit, Metric<?> metric) throws IOException, NoSuchAlgorithmException {
@@ -72,6 +74,7 @@ public class DatasetAnonymizer {
         ARXLattice.ARXNode transformation = result.getGlobalOptimum();
         DataAnalysis.analytics(result);
         AppendAnalytics.main(new String[]{});
+        json_response = readJsonAsListOfMaps("/home/kailash/Desktop/arx_anonymization/arx/anonymized_output.json");
         return json_response;
     }
 
@@ -94,7 +97,7 @@ public class DatasetAnonymizer {
             result.add(rowMap);
         }
 
-        FileWriter fileWriter = new FileWriter("anonymized_output.json");
+        FileWriter fileWriter = new FileWriter("/home/kailash/Desktop/arx_anonymization/arx/anonymized_output.json");
 
         try {
             fileWriter.write(convertToJsonString(result));
@@ -108,7 +111,7 @@ public class DatasetAnonymizer {
         }
 
         fileWriter.close();
-        handle.save(new File("anonymized_datset.csv"), ',');
+        handle.save(new File("/home/kailash/Desktop/arx_anonymization/arx/anonymized_output.csv"), ',');
         System.out.println("Anonymized dataset saved to anonymized_datset.csv");
         return result;
     }
@@ -138,5 +141,18 @@ public class DatasetAnonymizer {
         jsonBuilder.append("  ]\n");
         jsonBuilder.append("}");
         return jsonBuilder.toString();
+    }
+    public static List<Map<String, Object>> readJsonAsListOfMaps(String filePath) throws IOException {
+        String jsonContent = new String(Files.readAllBytes(Paths.get(filePath)));
+        JSONObject jsonObject = new JSONObject(jsonContent);
+        JSONArray jsonArray = jsonObject.getJSONArray("anonymized_output");
+        List<Map<String, Object>> jsonResponse = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject item = jsonArray.getJSONObject(i);
+            Map<String, Object> map = item.toMap();
+            jsonResponse.add(map);
+        }
+
+        return jsonResponse;
     }
 }

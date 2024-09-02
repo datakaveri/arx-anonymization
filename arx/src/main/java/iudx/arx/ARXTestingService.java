@@ -18,10 +18,9 @@ import java.security.NoSuchAlgorithmException;
 
 @Service
 public class ARXTestingService {
-
     public ARXResponse processProperties() throws IOException, NoSuchAlgorithmException {
         List<Map<String, Object>> jsonResponseList;
-        Properties properties = ConfigLoader.loadProperties("src/main/java/iudx/arx/config.properties");
+        Properties properties = ConfigLoader.loadProperties("/home/kailash/Desktop/arx_anonymization/arx/src/main/java/iudx/arx/config.properties");
         String datasetPath = properties.getProperty("dataset.path");
         Charset charset = Charset.forName(properties.getProperty("dataset.charset"));
         char delimiter = properties.getProperty("delimiter").charAt(0);
