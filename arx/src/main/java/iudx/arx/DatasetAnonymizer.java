@@ -32,7 +32,7 @@ public class DatasetAnonymizer {
         String[] attributesToPseudonymize = properties.getProperty("pseudonymize").split(",");
         Suppress.suppression(datasetPath, attributesToSuppress);
         Pseudonymize.pseudonymization(datasetPath, attributesToPseudonymize);
-        Data dataset = Data.create("/home/kailash/Desktop/arx-anonymization/arx/pseudonymized.csv", charset, delimiter);
+        Data dataset = Data.create("/home/kailash/Desktop/arx_anonymization/arx/pseudonymized.csv", charset, delimiter);
         setupDataset(dataset, hierarchyLevels, intervalWidths, properties, sizes);
         ARXConfiguration config = createARXConfiguration(k, suppressionLimit, metric);
         json_response = anonymizeAndAnalyze(metricType, dataset, config);
@@ -48,7 +48,7 @@ public class DatasetAnonymizer {
         String[] var3 = columns;
         int var4 = columns.length;
 
-        for(int var5 = 0; var5 < var4; ++var5) {
+        for (int var5 = 0; var5 < var4; ++var5) {
             String attribute = var3[var5];
             dataset.getDefinition().setAttributeType(attribute, type);
         }
@@ -64,7 +64,7 @@ public class DatasetAnonymizer {
     }
 
     private static List<Map<String, Object>> anonymizeAndAnalyze(String metricType, Data dataset, ARXConfiguration config) throws IOException {
-        List<Map<String, Object>> json_response ;
+        List<Map<String, Object>> json_response;
         ARXAnonymizer anonymizer = new ARXAnonymizer();
         ARXResult result = anonymizer.anonymize(dataset, config);
         DataHandle outputhandle = result.getOutput();
@@ -79,13 +79,13 @@ public class DatasetAnonymizer {
         List<Map<String, Object>> result = new ArrayList<>();
         CsvParserSettings parserSettings = new CsvParserSettings();
         CsvParser parser2 = new CsvParser(parserSettings);
-        List<String[]> allRows2 = parser2.parseAll(new File("/home/kailash/Desktop/arx-anonymization/arx/pseudonymized.csv"));
-        String[] headers = (String[])allRows2.get(0);
+        List<String[]> allRows2 = parser2.parseAll(new File("/home/kailash/Desktop/arx_anonymization/arx/pseudonymized.csv"));
+        String[] headers = allRows2.get(0);
 
-        for(int rowIndex = 0; rowIndex < handle.getNumRows(); ++rowIndex) {
+        for (int rowIndex = 0; rowIndex < handle.getNumRows(); ++rowIndex) {
             Map<String, Object> rowMap = new HashMap<>();
 
-            for(int colIndex = 0; colIndex < headers.length; ++colIndex) {
+            for (int colIndex = 0; colIndex < headers.length; ++colIndex) {
                 String columnName = headers[colIndex];
                 String value = handle.getValue(rowIndex, colIndex);
                 rowMap.put(columnName, value);
@@ -104,37 +104,39 @@ public class DatasetAnonymizer {
             } catch (Throwable var11) {
                 var12.addSuppressed(var11);
             }
-
             throw var12;
         }
 
         fileWriter.close();
         handle.save(new File("anonymized_datset.csv"), ',');
-        System.out.println("Anonymized dataset saved to /home/shivanit/Documents/P3DX/test_arx_api/arx/anonymized_datset.csv");
+        System.out.println("Anonymized dataset saved to anonymized_datset.csv");
         return result;
     }
+
     private static String convertToJsonString(List<Map<String, Object>> list) {
         StringBuilder jsonBuilder = new StringBuilder();
-        jsonBuilder.append("[\n");
+        jsonBuilder.append("{\n");
+        jsonBuilder.append("  \"anonymized_output\": [\n");
         for (int i = 0; i < list.size(); i++) {
             Map<String, Object> map = list.get(i);
-            jsonBuilder.append("  {\n");
+            jsonBuilder.append("    {\n");
             int j = 0;
             for (Map.Entry<String, Object> entry : map.entrySet()) {
-                jsonBuilder.append("    \"").append(entry.getKey()).append("\": \"").append(entry.getValue()).append("\"");
+                jsonBuilder.append("      \"").append(entry.getKey()).append("\": \"").append(entry.getValue()).append("\"");
                 if (j < map.size() - 1) {
                     jsonBuilder.append(",");
                 }
                 jsonBuilder.append("\n");
                 j++;
             }
-            jsonBuilder.append("  }");
+            jsonBuilder.append("    }");
             if (i < list.size() - 1) {
                 jsonBuilder.append(",");
             }
             jsonBuilder.append("\n");
         }
-        jsonBuilder.append("]");
+        jsonBuilder.append("  ]\n");
+        jsonBuilder.append("}");
         return jsonBuilder.toString();
     }
 }
