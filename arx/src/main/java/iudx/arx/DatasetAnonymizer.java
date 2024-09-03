@@ -28,23 +28,36 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class DatasetAnonymizer {
-    public static List<Map<String, Object>> setupAndAnonymizeDataset(String metricType, String datasetPath, Charset charset, char delimiter, Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths, List<Integer> sizes, Properties properties, int k, double suppressionLimit, Metric<?> metric) throws IOException, NoSuchAlgorithmException {
+    public static List<Map<String, Object>> setupAndAnonymizeDataset(
+            String metricType,
+            String datasetPath,
+            Charset charset,
+            char delimiter,
+            String[] attributesToSuppress,
+            String[] attributesToPseudonymize,
+            String[] insensitiveColumns,
+            Map<String, Integer> hierarchyLevels,
+            Map<String, Double> intervalWidths,
+            List<Integer> sizes,
+            int k,
+            double suppressionLimit,
+            Metric<?> metric
+    ) throws IOException, NoSuchAlgorithmException {
         List<Map<String, Object>> json_response;
-        String[] attributesToSuppress = properties.getProperty("suppress").split(",");
-        String[] attributesToPseudonymize = properties.getProperty("pseudonymize").split(",");
         Suppress.suppression(datasetPath, attributesToSuppress);
         Pseudonymize.pseudonymization(datasetPath, attributesToPseudonymize);
         Data dataset = Data.create("/home/kailash/Desktop/arx_anonymization/arx/pseudonymized.csv", charset, delimiter);
-        setupDataset(dataset, hierarchyLevels, intervalWidths, properties, sizes);
+        setupDataset(dataset,insensitiveColumns, hierarchyLevels, intervalWidths, sizes);
         ARXConfiguration config = createARXConfiguration(k, suppressionLimit, metric);
         json_response = anonymizeAndAnalyze(metricType, dataset, config);
         return json_response;
     }
 
-    private static void setupDataset(Data dataset, Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths, Properties properties, List<Integer> sizes) {
+    private static void setupDataset(Data dataset, String[] insensitiveColumns, Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths, List<Integer> sizes) {
         HierarchyBuilderUtil.buildHierarchies(dataset, hierarchyLevels, intervalWidths, sizes);
-        setAttributes(dataset, properties.getProperty("insensitive.columns").split(","), AttributeType.INSENSITIVE_ATTRIBUTE);
+        setAttributes(dataset, insensitiveColumns, AttributeType.INSENSITIVE_ATTRIBUTE);
     }
+
 
     private static void setAttributes(Data dataset, String[] columns, AttributeType type) {
         String[] var3 = columns;

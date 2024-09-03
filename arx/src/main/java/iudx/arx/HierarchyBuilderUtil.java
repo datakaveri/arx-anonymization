@@ -42,7 +42,7 @@ public class HierarchyBuilderUtil {
             }
 
             double startValue = Math.floor(minValue);
-            double endValue = Math.ceil(maxValue);
+            double endValue = Math.ceil(maxValue) + 1;
             double level1Width = intervalWidths.get(columnName);
 
             for (double i = startValue; i < endValue; i += level1Width) {

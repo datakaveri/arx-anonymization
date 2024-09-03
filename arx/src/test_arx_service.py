@@ -1,13 +1,30 @@
-import json, requests
+import json
+import requests
 
-# necessary file reads
-# config_file_name = "config/pipelineConfig.json"
+# Step 1: Read the configuration file
+config_file_path = "/home/kailash/Desktop/arx_anonymization/arx/src/main/java/iudx/arx/config.json"
 
-# config = utils.read_config(config_file_name) 
-url = 'http://localhost:8080/api/arx/process'
+with open(config_file_path, 'r') as config_file:
+    config = json.load(config_file)
 
-response = requests.get(url)
+# Step 2: Modify the config if needed
+config['medical']['k_anonymize']['k'] = 500
+config['medical']['allow_record_suppression'] = "True"
 
-print("response status:", response.status_code)
-with open('anonymized_output_compare.json','w') as f:
-    json.dump(json.loads(response.text), f) 
+# Prepare the parameters to send to the service
+params = {
+    "k": config['medical']['k_anonymize']['k'],
+    "suppress_columns": ','.join(config['medical']['suppress']),
+    "pseudonymize_columns": ','.join(config['medical']['pseudonymize']),
+    "insensitive_columns": ','.join(config['medical']['insensitive_columns']),
+    "allow_record_suppression": config['medical']['allow_record_suppression']
+}
+print(params)
+# Step 3: Send the configuration to the service
+url = 'http://192.168.1.201:8090/api/arx/process'
+response = requests.get(url, params=params)
+
+# Step 4: Handle the response
+print("Response status:", response.status_code)
+with open('/home/kailash/Desktop/arx_anonymization/anonymized_output_compare.json', 'w') as f:
+    json.dump(json.loads(response.text), f)
