@@ -35,7 +35,7 @@ public class ARXTestingService {
         //JSONTokener tokener = new JSONTokener(new FileReader("/home/kailash/Desktop/arx_anonymization/arx/src/main/java/iudx/arx/config.json"));
         //JSONObject config = new JSONObject(tokener);
         int k = Integer.parseInt(k_value);
-        String datasetPath = "/home/kailash/Desktop/arx_anonymization/arx/Medical_Data_new.csv";
+        String datasetPath = "Medical_Data_new.csv";
         Charset charset = Charset.forName("UTF-8");
         char delimiter = ',';
 /*

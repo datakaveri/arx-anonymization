@@ -12,28 +12,29 @@ import java.io.FileWriter;
 public class AppendAnalytics {
 
     public static void main(String[] args) {
-        String anonymizedOutputPath = "/home/kailash/Desktop/arx_anonymization/arx/anonymized_output.json";
-        String analyticsPath = "/home/kailash/Desktop/arx_anonymization/arx/analytics.json";
+        String anonymizedOutputPath = "anonymized_output.json";
+        String analyticsPath = "analytics.json";
 
         try {
-            // Read the content of anonymized_output.json
+            // Read the anonymized output JSON file into a string
             String anonymizedOutputContent = new String(Files.readAllBytes(Paths.get(anonymizedOutputPath)));
+
+            // Parse the anonymized output JSON content
             JSONObject anonymizedOutputObject = new JSONObject(anonymizedOutputContent);
 
-            // Extract the "anonymized_output" array from the JSON
+            // Extract the "anonymized_output" array from the JSON object
             JSONArray anonymizedOutputArray = anonymizedOutputObject.getJSONArray("anonymized_output");
 
-            // Read the content of analytics.json
+            // Read the analytics JSON file into a string
             String analyticsContent = new String(Files.readAllBytes(Paths.get(analyticsPath)));
+
+            // Parse the analytics JSON content
             JSONObject analyticsObject = new JSONObject(analyticsContent);
 
-            // Create a new JSONObject for analytics and add it to the array
-            JSONObject analyticsEntry = new JSONObject();
-            analyticsEntry.put("analytics", analyticsObject.getJSONObject("analytics"));
+            // Append the "analytics" object to the root level of the anonymized output JSON object
+            anonymizedOutputObject.put("analytics", analyticsObject.getJSONObject("analytics"));
 
-            anonymizedOutputArray.put(analyticsEntry);
-
-            // Write the modified JSON back to anonymized_output.json
+            // Write the modified JSON object back to the anonymized output file
             try (FileWriter fileWriter = new FileWriter(anonymizedOutputPath)) {
                 fileWriter.write(anonymizedOutputObject.toString(4)); // Pretty print with an indent of 4 spaces
             }

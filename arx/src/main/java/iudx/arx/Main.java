@@ -22,7 +22,7 @@ import org.json.JSONTokener;
 public class Main {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         // Load config.json using JSONTokener
-        JSONTokener tokener = new JSONTokener(new FileReader("/home/kailash/Desktop/arx_anonymization/arx/src/main/java/iudx/arx/config.json"));
+        JSONTokener tokener = new JSONTokener(new FileReader("src/main/java/iudx/arx/config.json"));
         JSONObject config = new JSONObject(tokener);
 
         // Extract basic information

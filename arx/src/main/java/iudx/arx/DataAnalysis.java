@@ -44,7 +44,7 @@ public class DataAnalysis {
         analyticsData.put("average_equivalence_class_size", stats.getAverageEquivalenceClassSize());
         analyticsData.put("num_equivalence_classes", num_equivalence_classes);
 
-        String filePath = "/home/kailash/Desktop/arx_anonymization/arx/anonymized_output.csv";
+        String filePath = "anonymized_output.csv";
 
         // Load the CSV data
         FileReader reader = new FileReader(filePath);
@@ -108,7 +108,7 @@ public class DataAnalysis {
         // File path to the JSON output
 
 
-        String jsonFilePath = "/home/kailash/Desktop/arx_anonymization/arx/analytics.json";
+        String jsonFilePath = "analytics.json";
 
         // Create or update the JSON object
         JSONObject jsonObject;

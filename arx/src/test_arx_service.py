@@ -2,7 +2,7 @@ import json
 import requests
 
 # Step 1: Read the configuration file
-config_file_path = "/home/kailash/Desktop/arx_anonymization/arx/src/main/java/iudx/arx/config.json"
+config_file_path = "src/main/java/iudx/arx/config.json"
 
 with open(config_file_path, 'r') as config_file:
     config = json.load(config_file)
@@ -26,5 +26,5 @@ response = requests.get(url, params=params)
 
 # Step 4: Handle the response
 print("Response status:", response.status_code)
-with open('/home/kailash/Desktop/arx_anonymization/anonymized_output_compare.json', 'w') as f:
+with open('anonymized_output_compare.json', 'w') as f:
     json.dump(json.loads(response.text), f)
