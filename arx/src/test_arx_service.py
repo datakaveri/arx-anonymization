@@ -21,7 +21,7 @@ params = {
 }
 print(params)
 # Step 3: Send the configuration to the service
-url = 'http://192.168.1.201:8090/api/arx/process'
+url = 'http://192.168.1.37:8070/api/arx/process'
 response = requests.get(url, params=params)
 
 # Step 4: Handle the response

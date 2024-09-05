@@ -1,5 +1,8 @@
 package iudx.arx;
 
+import org.deidentifier.arx.*;
+import org.deidentifier.arx.metric.Metric;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -11,7 +14,7 @@ import java.util.Map;
 import java.util.Arrays;
 
 
-import org.deidentifier.arx.metric.Metric;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
