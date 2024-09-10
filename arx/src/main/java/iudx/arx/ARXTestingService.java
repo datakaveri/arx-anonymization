@@ -21,7 +21,7 @@ import org.json.JSONTokener;
 @Service
 public class ARXTestingService {
     public static ARXResponse processProperties(
-            String k_value,
+            int k_value,
             String suppress_columns,
             String pseudonymize_columns,
             String insensitive_columns,
@@ -34,7 +34,7 @@ public class ARXTestingService {
         List<String> insensitiveColumns = Arrays.asList(insensitive_columns.split(","));
         //JSONTokener tokener = new JSONTokener(new FileReader("/home/kailash/Desktop/arx_anonymization/arx/src/main/java/iudx/arx/config.json"));
         //JSONObject config = new JSONObject(tokener);
-        int k = Integer.parseInt(k_value);
+        int k = k_value;
         String datasetPath = "Medical_Data_new.csv";
         Charset charset = Charset.forName("UTF-8");
         char delimiter = ',';

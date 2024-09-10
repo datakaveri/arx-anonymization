@@ -23,15 +23,13 @@
   ],
   "insensitive_columns": [
     "S.No",
-    "Patient ID",
-    "Name",
     "Gender",
     "Test Result",
     "Blood Pressure"
   ],
 
   "k_anonymize": {
-    "k": 50
+    "k": 10
     },
   "allow_record_suppression": "True"
   }

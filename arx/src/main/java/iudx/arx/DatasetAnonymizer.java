@@ -86,6 +86,8 @@ public class DatasetAnonymizer {
         json_response = outputAnonymizedDataset(outputhandle);
         ARXLattice.ARXNode transformation = result.getGlobalOptimum();
         DataAnalysis.analytics(result);
+        
+        EquivalenceClasses.main();
         AppendAnalytics.main(new String[]{});
         json_response = readJsonAsListOfMaps("anonymized_output.json");
         return json_response;

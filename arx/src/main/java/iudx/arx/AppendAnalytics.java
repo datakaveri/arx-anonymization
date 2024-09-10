@@ -13,7 +13,7 @@ public class AppendAnalytics {
 
     public static void main(String[] args) {
         String anonymizedOutputPath = "anonymized_output.json";
-        String analyticsPath = "analytics.json";
+        String analyticsPath = "equivalence_stats.json";
 
         try {
             // Read the anonymized output JSON file into a string
@@ -32,7 +32,7 @@ public class AppendAnalytics {
             JSONObject analyticsObject = new JSONObject(analyticsContent);
 
             // Append the "analytics" object to the root level of the anonymized output JSON object
-            anonymizedOutputObject.put("analytics", analyticsObject.getJSONObject("analytics"));
+            anonymizedOutputObject.put("size_distribution", analyticsObject.getJSONObject("size_distribution"));
 
             // Write the modified JSON object back to the anonymized output file
             try (FileWriter fileWriter = new FileWriter(anonymizedOutputPath)) {

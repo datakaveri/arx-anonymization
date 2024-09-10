@@ -51,7 +51,7 @@ public class Main {
         for (int i = 0; i < insensitiveArray.length(); i++) {
             insensitiveColumns.add(insensitiveArray.getString(i));
         }
-
+        insensitiveColumns.addAll(pseudonymizedColumns);
         // Extract k value for k-anonymity
         JSONObject kAnonymizeConfig = medicalConfig.getJSONObject("k_anonymize");
         int k = kAnonymizeConfig.getInt("k");
