@@ -90,6 +90,7 @@ public class DatasetAnonymizer {
         EquivalenceClasses.main();
         AppendAnalytics.main(new String[]{});
         json_response = readJsonAsListOfMaps("anonymized_output.json");
+
         return json_response;
     }
 
@@ -158,14 +159,33 @@ public class DatasetAnonymizer {
         return jsonBuilder.toString();
     }
     public static List<Map<String, Object>> readJsonAsListOfMaps(String filePath) throws IOException {
+        // Read the entire JSON file as a String
         String jsonContent = new String(Files.readAllBytes(Paths.get(filePath)));
+        
+        // Parse the JSON content
         JSONObject jsonObject = new JSONObject(jsonContent);
-        JSONArray jsonArray = jsonObject.getJSONArray("anonymized_output");
+
+        // Create a list to store the JSON content as Maps
         List<Map<String, Object>> jsonResponse = new ArrayList<>();
-        for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject item = jsonArray.getJSONObject(i);
-            Map<String, Object> map = item.toMap();
-            jsonResponse.add(map);
+
+        // Convert the JSONObject to a Map
+        Map<String, Object> jsonMap = jsonObject.toMap();
+        
+        // Iterate through the entries in the map
+        for (Map.Entry<String, Object> entry : jsonMap.entrySet()) {
+            // Check if the entry value is a JSONArray
+            if (entry.getValue() instanceof List) {
+                List<Map<String, Object>> list = new ArrayList<>();
+                JSONArray jsonArray = jsonObject.getJSONArray(entry.getKey());
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject item = jsonArray.getJSONObject(i);
+                    list.add(item.toMap());
+                }
+                jsonResponse.add(Map.of(entry.getKey(), list));
+            } else {
+                // If it's not an array, directly put the entry into the list as a map
+                jsonResponse.add(Map.of(entry.getKey(), entry.getValue()));
+            }
         }
 
         return jsonResponse;
