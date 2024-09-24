@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Pseudonymize {
-    public static void pseudonymization(String datasetPath, String[] attributesToPseudonymize) throws IOException, NoSuchAlgorithmException {
+    public static void pseudonymization(String[] attributesToPseudonymize) throws IOException, NoSuchAlgorithmException {
         CsvParserSettings parserSettings = new CsvParserSettings();
         CsvParser parser3 = new CsvParser(parserSettings);
         List<String[]> allRows3 = parser3.parseAll(new File("suppressed.csv"));

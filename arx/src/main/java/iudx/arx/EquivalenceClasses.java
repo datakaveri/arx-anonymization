@@ -9,6 +9,20 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Arrays;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 
 public class EquivalenceClasses {
 
@@ -125,12 +139,14 @@ public class EquivalenceClasses {
     }
 
     // Main method to demonstrate the functionality
-    public static void main() {
+    public static void main(List<String> generalizedColumns) {
         try {
+            System.out.println(generalizedColumns);
+            
             EquivalenceClasses eqClasses = new EquivalenceClasses("anonymized_output.csv");
 
             // Specify the columns for equivalence classes
-            eqClasses.computeEquivalenceClasses(Arrays.asList("Age", "PIN Code", "Height", "Weight"));
+            eqClasses.computeEquivalenceClasses(generalizedColumns);
 
             // Remove outliers
             eqClasses.removeOutliers();

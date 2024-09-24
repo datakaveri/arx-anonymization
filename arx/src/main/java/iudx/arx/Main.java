@@ -21,12 +21,11 @@ import org.json.JSONTokener;
 
 public class Main {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
-        // Load config.json using JSONTokener
-        JSONTokener tokener = new JSONTokener(new FileReader("src/main/java/iudx/arx/config.json"));
+        JSONTokener tokener = new JSONTokener(new FileReader("config.json"));
         JSONObject config = new JSONObject(tokener);
 
         // Extract basic information
-        String datasetPath = "/home/kailash/Desktop/arx_anonymization/arx/" + config.getString("dataset_name");
+        String datasetPath = config.getString("dataset_name");
         Charset charset = Charset.forName("UTF-8");
         char delimiter = ',';
 
@@ -44,35 +43,56 @@ public class Main {
         for (int i = 0; i < pseudonymizeArray.length(); i++) {
             pseudonymizedColumns.add(pseudonymizeArray.getString(i));
         }
-
+        
+        JSONArray generalizedArray = medicalConfig.getJSONArray("generalize");
+        List<String> generalizedColumns = new ArrayList<>();
+        for (int i = 0; i < generalizedArray.length(); i++) {
+            generalizedColumns.add(generalizedArray.getString(i));
+        }
+        
         // Extract insensitive columns
         JSONArray insensitiveArray = medicalConfig.getJSONArray("insensitive_columns");
         List<String> insensitiveColumns = new ArrayList<>();
         for (int i = 0; i < insensitiveArray.length(); i++) {
             insensitiveColumns.add(insensitiveArray.getString(i));
         }
+
         insensitiveColumns.addAll(pseudonymizedColumns);
+        System.out.println(insensitiveColumns);
         // Extract k value for k-anonymity
         JSONObject kAnonymizeConfig = medicalConfig.getJSONObject("k_anonymize");
         int k = kAnonymizeConfig.getInt("k");
 
-        // Hardcoded hierarchy levels and interval widths (based on config.json)
         Map<String, Integer> hierarchyLevels = new HashMap<>();
         Map<String, Double> intervalWidths = new HashMap<>();
 
-        hierarchyLevels.put("Age", 10);
-        intervalWidths.put("Age", 2.0);
+        List<Integer> sizes = new ArrayList<>();
 
-        hierarchyLevels.put("PIN Code", 1);
-        intervalWidths.put("PIN Code", 200.0);
+        for (String column : generalizedColumns) {
+            if (column.equalsIgnoreCase("Age")) {
+                hierarchyLevels.put(column, 10);  
+                intervalWidths.put(column, 2.0);  
 
-        hierarchyLevels.put("Height", 4);
-        intervalWidths.put("Height", 15.0);
-
-        hierarchyLevels.put("Weight", 4);
-        intervalWidths.put("Weight", 5.0);
-
-        List<Integer> sizes = new ArrayList<>(Arrays.asList(2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2));
+                for (int i = 0; i < 10; i++) {
+                    sizes.add(2);
+                }
+            } else if (column.equalsIgnoreCase("Height")) {
+                hierarchyLevels.put(column, 4);
+                intervalWidths.put(column, 15.0);
+                for (int i = 0; i < 4; i++) {
+                    sizes.add(2);
+                }
+            } else if (column.equalsIgnoreCase("Weight")) {
+                hierarchyLevels.put(column, 4);
+                intervalWidths.put(column, 5.0);
+                for (int i = 0; i < 4; i++) {
+                    sizes.add(2);
+                }
+            } else if (column.equalsIgnoreCase("PIN Code")) {
+                hierarchyLevels.put("PIN Code", 1);
+                intervalWidths.put("PIN Code", 200.0);
+            }
+        }
 
         double suppressionlimit  = 0;
         boolean allowRecordSuppression = medicalConfig.getString("allow_record_suppression").equalsIgnoreCase("true");
@@ -88,6 +108,7 @@ public class Main {
                 suppressedColumns.toArray(new String[0]),
                 pseudonymizedColumns.toArray(new String[0]),
                 insensitiveColumns.toArray(new String[0]),
+                generalizedColumns,
                 hierarchyLevels,
                 intervalWidths,
                 sizes,

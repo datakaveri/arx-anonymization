@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class DataAnalysis {
 
     public static JSONObject analytics(ARXResult result) throws IOException {
+        System.out.println("here");
         DataHandle outputhandle = result.getOutput();
         StatisticsEquivalenceClasses stats = outputhandle.getStatistics().getEquivalenceClassStatistics();
         ARXLattice.ARXNode transformation = result.getGlobalOptimum();
@@ -46,14 +47,13 @@ public class DataAnalysis {
 
         String filePath = "anonymized_output.csv";
 
-        // Load the CSV data
         FileReader reader = new FileReader(filePath);
         CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader());
         Map<String, Integer> totalPerAgeBin = new HashMap<>();
         Map<String, Integer> positivesPerAgeBin = new HashMap<>();
         Map<String, Integer> totalPerGender = new HashMap<>();
         Map<String, Integer> positivesPerGender = new HashMap<>();
-
+        System.out.println("here2");
         for (CSVRecord record : parser) {
             String age = record.get("Age");
             String gender = record.get("Gender");

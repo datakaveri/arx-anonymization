@@ -44,6 +44,18 @@
 			<version>20210307</version>
 		</dependency>
 
+		<dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.5.3</version>
+        </dependency>
+
+		<dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.14.1</version>
+        </dependency>
+
 		<!-- Apache Commons CSV for handling CSV operations -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>

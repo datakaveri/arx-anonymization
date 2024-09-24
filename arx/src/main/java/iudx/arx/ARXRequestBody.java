@@ -1,11 +1,22 @@
 package iudx.arx;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Arrays;
+
 public class ARXRequestBody {
     private int k;
     private String suppress_columns;
     private String pseudonymize_columns;
+    private String generalized_columns;
     private String insensitive_columns;
     private String allow_record_suppression;
+    private Map<String, Double> widths;
+    private Map<String, Integer> num_levels;
+
+
 
     // Getters and setters
     public int getK() {
@@ -28,6 +39,14 @@ public class ARXRequestBody {
         return pseudonymize_columns;
     }
 
+    public String getGeneralized_columns() {
+        return generalized_columns;
+    }
+
+    public void setGeneralized_columns(String generalized_columns) {
+        this.generalized_columns = generalized_columns;
+    }
+
     public void setPseudonymize_columns(String pseudonymize_columns) {
         this.pseudonymize_columns = pseudonymize_columns;
     }
@@ -38,6 +57,22 @@ public class ARXRequestBody {
 
     public void setInsensitive_columns(String insensitive_columns) {
         this.insensitive_columns = insensitive_columns;
+    }
+
+    public Map<String, Double> getWidths() {
+        return widths;
+    }
+
+    public void setWidths(Map<String, Double> widths) {
+        this.widths = widths;
+    }
+
+    public Map<String, Integer> getNum_levels() {
+        return num_levels;
+    }
+
+    public void setNum_levels(Map<String, Integer> num_levels) {
+        this.num_levels = num_levels;
     }
 
     public String getAllow_record_suppression() {

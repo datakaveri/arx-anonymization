@@ -1,0 +1,46 @@
+{
+    "operations": [
+      "suppress",
+      "pseudonymize",
+      "k_anonymize"
+  ],
+  "dataset_name": "suratITMS_data_csv_small.csv",
+  "data_type": "medical",
+  "medical": {
+    "suppress": [
+      "license_plate",
+      "location.coordinates"
+    ],
+    "pseudonymize": [
+      "route_id",
+      "vehicle_label"
+    ],
+    "generalize": [
+      "last_stop_id",
+      "trip_delay",
+      "trip_id",
+      "speed"
+    ],
+    "insensitive_columns": [
+    "trip_direction","last_stop_arrival_time","actual_trip_start_time","observationDateTime","id","location.type"
+      
+    ],
+    "width": {
+      "last_stop_id":1000,
+      "trip_delay":50,
+      "trip_id":1000000,
+      "speed":10
+    },
+    "levels": {
+      "last_stop_id":5,
+      "trip_delay":5,
+      "trip_id":5,
+      "speed":5
+    },
+    "k_anonymize": {
+      "k": 50
+      },
+    "allow_record_suppression": "True"
+    }
+  }
+  

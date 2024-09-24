@@ -14,8 +14,12 @@ import java.util.List;
 public class Suppress {
     public static void suppression(String datasetPath, String[] attributesToSuppress) throws IOException {
         CsvParserSettings parserSettings = new CsvParserSettings();
+        parserSettings.setSkipEmptyLines(true);  // Skip empty lines
+        parserSettings.setNullValue("");
+        parserSettings.setDelimiterDetectionEnabled(true);
         CsvParser parser = new CsvParser(parserSettings);
         List<String[]> allRows = parser.parseAll(new File(datasetPath));
+        allRows.removeIf(row -> Arrays.stream(row).allMatch(String::isEmpty));
         String[] headers = allRows.get(0);
         List<String> headersList = new ArrayList<>(Arrays.asList(headers));
         System.out.println(headersList);
@@ -51,7 +55,6 @@ public class Suppress {
         CsvWriterSettings writerSettings = new CsvWriterSettings();
         CsvWriter writer = new CsvWriter(new FileWriter("suppressed.csv"), writerSettings);
         writer.writeRow(newHeaders);
-
         for(int rowIndex = 1; rowIndex < allRows.size(); ++rowIndex) {
             String[] row = (String[])allRows.get(rowIndex);
             List<String> newRow = new ArrayList();
