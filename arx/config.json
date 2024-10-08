@@ -3,46 +3,43 @@
     "suppress",
     "pseudonymize",
     "k_anonymize"
-],
-"dataset_name": "Medical_Data_new.csv",
-"data_type": "medical",
-"medical": {
-  "suppress": [
-    "Date of Birth",
-    "Address"
   ],
-  "pseudonymize": [
-    "Patient ID",
-    "Name"
-  ],
-  "generalize": [
-    "Weight",
-    "Age",
-    "Height",
-    "PIN Code"
-  ],
-  "insensitive_columns": [
-    "S.No",
-    "Gender",
-    "Test Result",
-    "Blood Pressure"
-    
-  ],
-  "width": {
-    "Height": 50,
-    "Weight": 40,
-    "Age": 20,
-    "PIN Code": 10
-  },
-  "levels": {
-    "Height": 1,
-    "Weight": 1,
-    "Age": 1,
-    "PIN Code": 1
-  },
-  "k_anonymize": {
-    "k": 50
+  "dataset_name": "syntheticMedicalDataset.csv",
+  "data_type": "medical",
+  "medical": {
+    "insensitive_columns": [
+      "S.No",
+      "Gender",
+      "Test Result",
+      "Blood Pressure"
+    ],
+    "suppress": [
+      "Date of Birth",
+      "Address"
+    ],
+    "pseudonymize": [
+      "Name",
+      "Patient ID"
+    ],
+    "generalize": [
+      "Height",
+      "Weight",
+      "PIN Code",
+      "Age"
+    ],
+    "width": {
+      "Height": 5,
+      "Weight": 4,
+      "Age": 6
     },
-  "allow_record_suppression": "True"
+    "levels": {
+      "Height": 3,
+      "Weight": 6,
+      "Age": 4
+    },
+    "k_anonymize": {
+      "k": 49
+    },
+    "allow_record_suppression": true
   }
 }

@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 public class DataAnalysis {
 
     public static JSONObject analytics(ARXResult result) throws IOException {
-        System.out.println("here");
         DataHandle outputhandle = result.getOutput();
         StatisticsEquivalenceClasses stats = outputhandle.getStatistics().getEquivalenceClassStatistics();
         ARXLattice.ARXNode transformation = result.getGlobalOptimum();
@@ -46,68 +45,6 @@ public class DataAnalysis {
         analyticsData.put("num_equivalence_classes", num_equivalence_classes);
 
         String filePath = "anonymized_output.csv";
-
-        FileReader reader = new FileReader(filePath);
-        CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader());
-        Map<String, Integer> totalPerAgeBin = new HashMap<>();
-        Map<String, Integer> positivesPerAgeBin = new HashMap<>();
-        Map<String, Integer> totalPerGender = new HashMap<>();
-        Map<String, Integer> positivesPerGender = new HashMap<>();
-        System.out.println("here2");
-        for (CSVRecord record : parser) {
-            String age = record.get("Age");
-            String gender = record.get("Gender");
-            String testResult = record.get("Test Result");
-
-            totalPerAgeBin.put(age, totalPerAgeBin.getOrDefault(age, 0) + 1);
-            if ("+ve".equals(testResult)) {
-                positivesPerAgeBin.put(age, positivesPerAgeBin.getOrDefault(age, 0) + 1);
-            }
-
-            totalPerGender.put(gender, totalPerGender.getOrDefault(gender, 0) + 1);
-            if ("+ve".equals(testResult)) {
-                positivesPerGender.put(gender, positivesPerGender.getOrDefault(gender, 0) + 1);
-            }
-        }
-
-        // Calculate percentage of positives per age bin
-        Map<String, Double> positivesPercentagePerAgeBin = positivesPerAgeBin.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> {
-                            String ageBin = entry.getKey();
-                            int positives = entry.getValue();
-                            int total = totalPerAgeBin.getOrDefault(ageBin, 0);
-                            return total == 0 ? 0.0 : (positives / (double) total) * 100;
-                        }
-                ));
-
-        // Add age bin data to analytics JSON
-        JSONObject ageBinData = new JSONObject();
-        positivesPercentagePerAgeBin.forEach(ageBinData::put);
-        analyticsData.put("positives_percentage_per_age_bin", ageBinData);
-
-        // Calculate percentage of positives per gender
-        Map<String, Double> positivesPercentagePerGender = positivesPerGender.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> {
-                            String genderKey = entry.getKey();
-                            int positives = entry.getValue();
-                            int total = totalPerGender.getOrDefault(genderKey, 0);
-                            return total == 0 ? 0.0 : (positives / (double) total) * 100;
-                        }
-                ));
-
-        // Add gender data to analytics JSON
-
-        JSONObject genderData = new JSONObject();
-        positivesPercentagePerGender.forEach(genderData::put);
-        analyticsData.put("positives_percentage_per_gender", genderData);
-
-        // File path to the JSON output
-
-
         String jsonFilePath = "analytics.json";
 
         // Create or update the JSON object

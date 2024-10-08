@@ -35,6 +35,7 @@ public class ARXTestingController {
             @RequestBody ARXRequestBody request_body
     ) throws NoSuchAlgorithmException, IOException {
         try {
+            String datasetType = request_body.getDatasetType();
             int k = request_body.getK();
             String suppress_columns =request_body.getSuppress_columns();
             String pseudonymize_columns = request_body.getPseudonymize_columns();
@@ -46,6 +47,7 @@ public class ARXTestingController {
             System.out.println(widths);
             System.out.println(num_levels);
             System.out.println("Value of k = " + k);
+            System.out.println("Data type = " + datasetType);
             System.out.println("Suppress Columns = " + suppress_columns);
             System.out.println("Pseudonymize Columns = " + pseudonymize_columns);
             System.out.println("Insensitive Columns = " + insensitive_columns);
@@ -53,7 +55,7 @@ public class ARXTestingController {
             System.out.println("Allow Record Suppression = " + allow_record_suppression);
    
             return arxTestingService.processProperties(
-                    k, suppress_columns, pseudonymize_columns, generalized_columns, insensitive_columns,widths,num_levels, allow_record_suppression
+                datasetType,k, suppress_columns, pseudonymize_columns, generalized_columns, insensitive_columns,widths,num_levels, allow_record_suppression
             );
         } catch (Exception e) {
             return new ARXTestingService.ARXResponse("Failed", Collections.emptyList());

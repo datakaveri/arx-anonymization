@@ -51,9 +51,9 @@ public class EquivalenceClasses {
     }
 
     // Group data based on specified columns to form equivalence classes
-    public List<Map<String, Object>> computeEquivalenceClasses(List<String> columns) {
+    public List<Map<String, Object>> computeEquivalenceClasses(String[] columns) {
         equivalenceClasses = data.stream()
-            .collect(Collectors.groupingBy(row -> columns.stream()
+            .collect(Collectors.groupingBy(row -> Arrays.stream(columns)
                 .map(row::get)
                 .collect(Collectors.toList())))
             .entrySet().stream()
@@ -63,7 +63,7 @@ public class EquivalenceClasses {
                 map.put("Size", entry.getValue().size());
                 return map;
             }).collect(Collectors.toList());
-
+    
         // Calculate size of each equivalence class
         classSizes = equivalenceClasses.stream()
             .map(group -> {
@@ -71,9 +71,10 @@ public class EquivalenceClasses {
                 sizeMap.put("Size", group.get("Size"));
                 return sizeMap;
             }).collect(Collectors.toList());
-
+    
         return classSizes;
     }
+    
 
     // Remove outliers using the IQR method
     public void removeOutliers() {
@@ -139,7 +140,7 @@ public class EquivalenceClasses {
     }
 
     // Main method to demonstrate the functionality
-    public static void main(List<String> generalizedColumns) {
+    public static void main(String[] generalizedColumns) {
         try {
             System.out.println(generalizedColumns);
             

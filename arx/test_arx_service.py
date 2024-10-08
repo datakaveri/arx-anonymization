@@ -2,22 +2,24 @@ import json
 import requests
 
 # Step 1: Read the configuration file
-#config_file_path = "arx/config.json"
-config_file_path = "arx/config_suratITMS.json"
+config_file_path = "arx/config.json"
+#config_file_path = "arx/config_suratITMS.json"
 
 with open(config_file_path, 'r') as config_file:
     config = json.load(config_file)
 
 # Prepare the parameters to send to the service
+dataset_type = config['data_type']
 params = {
-    "k": config['medical']['k_anonymize']['k'],
-    "suppress_columns": ','.join(config['medical']['suppress']),
-    "pseudonymize_columns": ','.join(config['medical']['pseudonymize']),
-    "generalized_columns": ','.join(config['medical']['generalize']),
-    "insensitive_columns": ','.join(config['medical']['insensitive_columns']),
-    "widths":config['medical']['width'],
-    "num_levels":config['medical']['levels'],
-    "allow_record_suppression": config['medical']['allow_record_suppression']
+    "datasetType": config['data_type'],
+    "k": config[dataset_type]['k_anonymize']['k'],
+    "suppress_columns": ','.join(config[dataset_type]['suppress']),
+    "pseudonymize_columns": ','.join(config[dataset_type]['pseudonymize']),
+    "generalized_columns": ','.join(config[dataset_type]['generalize']),
+    "insensitive_columns": ','.join(config[dataset_type]['insensitive_columns']),
+    "widths":config[dataset_type]['width'],
+    "num_levels":config[dataset_type]['levels'],
+    "allow_record_suppression": config[dataset_type]['allow_record_suppression']
 }
 print(params)
 # Step 3: Send the configuration to the service

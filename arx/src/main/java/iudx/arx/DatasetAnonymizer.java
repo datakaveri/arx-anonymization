@@ -38,7 +38,7 @@ public class DatasetAnonymizer {
             String[] attributesToSuppress,
             String[] attributesToPseudonymize,
             String[] insensitiveColumns,
-            List<String> generalizedColumns,
+            String[] generalizedColumns,
             Map<String, Integer> hierarchyLevels,
             Map<String, Double> intervalWidths,
             List<Integer> sizes,
@@ -50,14 +50,14 @@ public class DatasetAnonymizer {
         Suppress.suppression(datasetPath, attributesToSuppress);
         Pseudonymize.pseudonymization(attributesToPseudonymize);
         Data dataset = Data.create("pseudonymized.csv", charset, delimiter);
-        setupDataset(dataset,insensitiveColumns, hierarchyLevels, intervalWidths, sizes);
+        setupDataset(dataset,insensitiveColumns,generalizedColumns,hierarchyLevels, intervalWidths, sizes);
         ARXConfiguration config = createARXConfiguration(k, suppressionLimit, metric);
         json_response = anonymizeAndAnalyze(metricType,generalizedColumns ,dataset, config);
         return json_response;
     }
 
-    private static void setupDataset(Data dataset, String[] insensitiveColumns, Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths, List<Integer> sizes) {
-        HierarchyBuilderUtil.buildHierarchies(dataset, hierarchyLevels, intervalWidths, sizes);
+    private static void setupDataset(Data dataset, String[] insensitiveColumns,String[] generalizedColumns, Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths, List<Integer> sizes) {
+        HierarchyBuilderUtil.buildHierarchies(dataset, generalizedColumns,hierarchyLevels, intervalWidths, sizes);
         setAttributes(dataset, insensitiveColumns, AttributeType.INSENSITIVE_ATTRIBUTE);
     }
 
@@ -81,7 +81,7 @@ public class DatasetAnonymizer {
         return config;
     }
 
-    private static List<Map<String, Object>> anonymizeAndAnalyze(String metricType, List<String> generalizedColumns,Data dataset, ARXConfiguration config) throws IOException {
+    private static List<Map<String, Object>> anonymizeAndAnalyze(String metricType, String[] generalizedColumns,Data dataset, ARXConfiguration config) throws IOException {
         List<Map<String, Object>> json_response;
         ARXAnonymizer anonymizer = new ARXAnonymizer();
         ARXResult result = anonymizer.anonymize(dataset, config);
@@ -109,6 +109,7 @@ public class DatasetAnonymizer {
             for (int colIndex = 0; colIndex < headers.length; ++colIndex) {
                 String columnName = headers[colIndex];
                 String value = handle.getValue(rowIndex, colIndex);
+                value = value.replace("\n", " ").replace("\r", " ");
                 rowMap.put(columnName, value);
             }
 

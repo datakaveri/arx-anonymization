@@ -5,7 +5,7 @@
       "k_anonymize"
   ],
   "dataset_name": "suratITMS_data_csv_small.csv",
-  "data_type": "medical",
+  "data_type": "spatioTemporal",
   "medical": {
     "suppress": [
       "license_plate",
@@ -22,7 +22,12 @@
       "speed"
     ],
     "insensitive_columns": [
-    "trip_direction","last_stop_arrival_time","actual_trip_start_time","observationDateTime","id","location.type"
+    "trip_direction",
+    "last_stop_arrival_time",
+    "actual_trip_start_time",
+    "observationDateTime",
+    "id",
+    "location.type"
       
     ],
     "width": {
@@ -34,7 +39,7 @@
     "levels": {
       "last_stop_id":5,
       "trip_delay":5,
-      "trip_id":5,
+      "trip_id":4,
       "speed":5
     },
     "k_anonymize": {

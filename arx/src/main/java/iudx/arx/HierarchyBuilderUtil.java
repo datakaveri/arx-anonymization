@@ -21,11 +21,11 @@ public class HierarchyBuilderUtil {
      * @param intervalWidths  Map containing interval widths for each column (used for interval-based hierarchies).
      * @param sizes           List containing sizes for redaction-based hierarchy.
      */
-    public static void buildHierarchies(Data dataset, Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths,
+    public static void buildHierarchies(Data dataset, String[]generalizedColumns,Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths,
                                         List<Integer> sizes){
         Map<String, Integer> anonymizationLevels = new HashMap<>();
         System.out.println("\n");
-        for (String columnName : hierarchyLevels.keySet()) {
+        for (String columnName : generalizedColumns) {
             int colIndex = getColumnIndex(dataset, columnName);
             if (colIndex == -1) {
                 System.out.println("Column " + columnName + " not found in dataset.");
@@ -39,16 +39,17 @@ public class HierarchyBuilderUtil {
             if (Objects.equals(columnName, "PIN Code")){
                 hierarchyType = "redaction";
             }
-
             if (hierarchyType.equals("interval")) {
    
                 buildIntervalBasedHierarchy(dataset, columnName, hierarchyLevels.get(columnName), intervalWidths.get(columnName), sizes);
+                anonymizationLevels.put(columnName, hierarchyLevels.get(columnName));
             }
             else {
-                buildRedactionBasedHierarchy(dataset, columnName, hierarchyLevels.get(columnName));
+                buildRedactionBasedHierarchy(dataset, columnName);
             }
 
-            anonymizationLevels.put(columnName, hierarchyLevels.get(columnName));
+            
+            System.out.println(anonymizationLevels);
         }
         System.out.println("\n");
     }
@@ -84,7 +85,7 @@ public class HierarchyBuilderUtil {
         dataset.getDefinition().setAttributeType(columnName, builder);
     }
 
-    private static void buildRedactionBasedHierarchy(Data dataset, String columnName, int hierarchyLevel) {
+    private static void buildRedactionBasedHierarchy(Data dataset, String columnName) {
         HierarchyBuilderRedactionBased<Object> builder = HierarchyBuilderRedactionBased.create('*');
         int colIndex = getColumnIndex(dataset, columnName);
         dataset.getDefinition().setAttributeType(columnName, builder);

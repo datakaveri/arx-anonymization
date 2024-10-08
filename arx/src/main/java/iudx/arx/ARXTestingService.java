@@ -20,6 +20,7 @@ import org.json.JSONTokener;
 @Service
 public class ARXTestingService {
     public static ARXResponse processProperties(
+            String datasetType,
             int k_value,
             String suppress_columns,
             String pseudonymize_columns,
@@ -38,8 +39,11 @@ public class ARXTestingService {
 
         insensitiveColumns.addAll(pseudonymizedColumns);
         int k = k_value;
-        //String datasetPath = "Medical_Data_new.csv";
-        String datasetPath = "suratITMS_data_csv_small.csv";
+        String datasetPath = "Medical_Data_new.csv";
+        if (datasetType.equals("spatioTemporal")){
+            datasetPath = "suratITMS_data_csv_50K.csv";
+        }
+        System.out.println(datasetPath);
         Charset charset = Charset.forName("UTF-8");
         char delimiter = ',';
         List<Integer> sizes = new ArrayList<>();
@@ -70,7 +74,7 @@ public class ARXTestingService {
                 suppressedColumns.toArray(new String[0]),
                 pseudonymizedColumns.toArray(new String[0]),
                 insensitiveColumns.toArray(new String[0]),
-                generalizedColumns,
+                generalizedColumns.toArray(new String[0]),
                 hierarchyLevels,
                 intervalWidths,
                 sizes,

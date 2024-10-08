@@ -7,7 +7,6 @@ iudx/arx/ColumnHierarchyConfigParser.class
 iudx/arx/DatasetAnonymizer.class
 iudx/arx/ARXTestingService.class
 iudx/arx/DataAnalysis.class
-iudx/arx/Main.class
 iudx/arx/ARXTestingController.class
 iudx/arx/HierarchyBuilderUtil.class
 iudx/arx/ConfigLoader.class

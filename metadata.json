@@ -1,0 +1,64 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "S.No": {
+        "type": "integer"
+      },
+      "Patient ID": {
+        "type": "string"
+      },
+      "Name": {
+        "type": "string"
+      },
+      "Date of Birth": {
+        "type": "string"
+      },
+      "Age": {
+        "type": "integer",
+        "min": 1,
+        "max": 110
+      },
+      "Height": {
+        "type": "number",
+        "min": 20.0,
+        "max": 250.0
+      },
+      "Weight": {
+        "type": "number",
+        "min": 1.0,
+        "max": 200.0
+      },
+      "Gender": {
+        "type": "string"
+      },
+      "Address": {
+        "type": "string"
+      },
+      "PIN Code": {
+        "type": "integer",
+        "min": 1100100,
+        "max": 3300999
+      },
+      "Test Result": {
+        "type": "string"
+      },
+      "Blood Pressure": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "S.No",
+      "Patient ID",
+      "Name",
+      "Date of Birth",
+      "Age",
+      "Height",
+      "Weight",
+      "Gender",
+      "Address",
+      "PIN Code",
+      "Test Result",
+      "Blood Pressure"
+    ]
+  }

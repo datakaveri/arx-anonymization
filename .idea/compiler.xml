@@ -9,8 +9,5 @@
         <module name="maven_arx" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="arx_attempt" target="16" />
-    </bytecodeTargetLevel>
   </component>
 </project>

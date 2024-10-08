@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Arrays;
 
 public class ARXRequestBody {
+    private String datasetType;
     private int k;
     private String suppress_columns;
     private String pseudonymize_columns;
@@ -17,7 +18,13 @@ public class ARXRequestBody {
     private Map<String, Integer> num_levels;
 
 
+    public String getDatasetType() {
+        return datasetType;
+    }
 
+    public void setDatasetType(String datasetType) {
+        this.datasetType = datasetType;
+    }
     // Getters and setters
     public int getK() {
         return k;
