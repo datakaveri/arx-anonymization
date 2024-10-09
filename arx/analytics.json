@@ -1,0 +1,10 @@
+{"analytics": {
+    "transformation_node": "[1, 2, 2]",
+    "total_records": 100000,
+    "information_loss": "0.08186704564576885",
+    "smallest_equivalence_class_size": 49,
+    "largest_equivalence_class_size": 514,
+    "num_equivalence_classes": 424,
+    "num_suppressed": 816,
+    "average_equivalence_class_size": 233.9245283018868
+}}

@@ -1,0 +1,9 @@
+services:
+  arx-anonymisation:
+    image: arx_final
+    volumes:
+      - /tmp/arx_input/input_file:/app/data
+      - /tmp/arx_input/config:/app/config
+      - /tmp/arx_output:/app/output
+    ports:
+      - "8070:8070"
