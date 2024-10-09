@@ -1,6 +1,6 @@
 services:
   arx-anonymisation:
-    image: arx_testing6
+    image: arx_final
     volumes:
       - /tmp/arx_input/input_file:/app/data
       - /tmp/arx_input/config:/app/config
