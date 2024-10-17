@@ -13,8 +13,9 @@ with open(config_file_path, 'r') as config_file:
 dataset_type = config['data_type']
 params = {
     "datasetType": config['data_type'],
-    "k": config[dataset_type]['k_anonymize']['k'],
+    "k":config[dataset_type]['k_anonymize']['k'],
     "l":config[dataset_type]['k_anonymize']['l'],
+    "t":config[dataset_type]['k_anonymize']['t'],
     "suppress_columns": ','.join(config[dataset_type]['suppress']),
     "pseudonymize_columns": ','.join(config[dataset_type]['pseudonymize']),
     "generalized_columns": ','.join(config[dataset_type]['generalize']),

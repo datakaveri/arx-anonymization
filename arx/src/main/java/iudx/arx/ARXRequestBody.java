@@ -10,6 +10,7 @@ public class ARXRequestBody {
     private String datasetType;
     private int k;
     private int l;
+    private double t;
     private String suppress_columns;
     private String pseudonymize_columns;
     private String generalized_columns;
@@ -44,6 +45,13 @@ public class ARXRequestBody {
         this.l = l;
     }
 
+    public double getT() {
+        return t;
+    }
+
+    public void setT(double t) {
+        this.t = t;
+    }
 
     public String getSuppress_columns() {
         return suppress_columns;

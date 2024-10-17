@@ -37,6 +37,7 @@ public class ARXTestingController {
             String datasetType = request_body.getDatasetType();
             int k = request_body.getK();
             int l = request_body.getL();
+            double t = request_body.getT();
             String suppress_columns =request_body.getSuppress_columns();
             String pseudonymize_columns = request_body.getPseudonymize_columns();
             String insensitive_columns = request_body.getInsensitive_columns();
@@ -48,6 +49,8 @@ public class ARXTestingController {
             System.out.println(widths);
             System.out.println(num_levels);
             System.out.println("Value of k = " + k);
+            System.out.println("Value of l = " + l);
+            System.out.println("Value of t = " + t);
             System.out.println("Data type = " + datasetType);
             System.out.println("Suppress Columns = " + suppress_columns);
             System.out.println("Pseudonymize Columns = " + pseudonymize_columns);
@@ -57,7 +60,7 @@ public class ARXTestingController {
             System.out.println("Allow Record Suppression = " + allow_record_suppression);
    
             return arxTestingService.processProperties(
-                datasetType,k,l, suppress_columns, pseudonymize_columns, generalized_columns, insensitive_columns,sensitive_column,widths,num_levels, allow_record_suppression
+                datasetType,k,l, t,suppress_columns, pseudonymize_columns, generalized_columns, insensitive_columns,sensitive_column,widths,num_levels, allow_record_suppression
             );
         } catch (Exception e) {
             return new ARXTestingService.ARXResponse("Failed", Collections.emptyList());

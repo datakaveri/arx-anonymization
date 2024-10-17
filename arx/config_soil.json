@@ -51,7 +51,8 @@
       },
       "k_anonymize": {
         "k": 49,
-        "l":5
+        "l":5,
+        "t":0.2
       },
       "allow_record_suppression": true
     }

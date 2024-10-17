@@ -23,6 +23,7 @@ public class ARXTestingService {
             String datasetType,
             int k_value,
             int l_value,
+            double t_value,
             String suppress_columns,
             String pseudonymize_columns,
             String generalized_columns,
@@ -43,6 +44,7 @@ public class ARXTestingService {
         insensitiveColumns.addAll(pseudonymizedColumns);
         int k = k_value;
         int l = l_value;
+        double t = t_value;
         String datasetPath = "Medical_Data_new.csv";
         if (datasetType.equals("spatioTemporal")){
             datasetPath = "suratITMS_data_csv_50K.csv";
@@ -89,6 +91,7 @@ public class ARXTestingService {
                 sizes,
                 k,
                 l,
+                t,
                 suppressionlimit,
                 Metric.createLossMetric()
         );

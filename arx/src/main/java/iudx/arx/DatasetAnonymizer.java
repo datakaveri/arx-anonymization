@@ -25,6 +25,7 @@ import org.deidentifier.arx.criteria.KAnonymity;
 import org.deidentifier.arx.criteria.LDiversity;
 import org.deidentifier.arx.criteria.EntropyLDiversity;
 import org.deidentifier.arx.criteria.DistinctLDiversity;
+import org.deidentifier.arx.criteria.EqualDistanceTCloseness;
 import org.deidentifier.arx.metric.Metric;
 
 import org.json.JSONArray;
@@ -48,6 +49,7 @@ public class DatasetAnonymizer {
             List<Integer> sizes,
             int k,
             int l,
+            double t,
             double suppressionLimit,
             Metric<?> metric
     ) throws IOException, NoSuchAlgorithmException {
@@ -59,7 +61,7 @@ public class DatasetAnonymizer {
         }
         Data dataset = Data.create("pseudonymized.csv", charset, delimiter);
         setupDataset(dataset,sensitiveColumn,insensitiveColumns,generalizedColumns,hierarchyLevels, intervalWidths, sizes);
-        ARXConfiguration config = createARXConfiguration(k, l, sensitiveColumn,suppressionLimit, metric);
+        ARXConfiguration config = createARXConfiguration(k, l, t, sensitiveColumn,suppressionLimit, metric);
         System.out.println("configuration created successfully");
         json_response = anonymizeAndAnalyze(metricType,generalizedColumns ,dataset, config);
         return json_response;
@@ -83,7 +85,7 @@ public class DatasetAnonymizer {
 
     }
 
-    private static ARXConfiguration createARXConfiguration(int k,int l,String sensitiveColumn, double suppressionLimit, Metric<?> metric) {
+    private static ARXConfiguration createARXConfiguration(int k,int l,double t,String sensitiveColumn, double suppressionLimit, Metric<?> metric) {
         ARXConfiguration config = ARXConfiguration.create();
         config.addPrivacyModel(new KAnonymity(k));
         System.out.println("privacy model k-anonymity added to configuration");
@@ -91,13 +93,21 @@ public class DatasetAnonymizer {
         config.setQualityModel(metric);
         config.addPrivacyModel(new EntropyLDiversity(sensitiveColumn,l));
         System.out.println("privacy model entropy-based l-diversity added to configuration");
+        config.addPrivacyModel(new EqualDistanceTCloseness(sensitiveColumn, t));
+        System.out.println("privacy model equal-distance t-closeness added to configuration");
         return config;
     }
 
     private static List<Map<String, Object>> anonymizeAndAnalyze(String metricType, String[] generalizedColumns,Data dataset, ARXConfiguration config) throws IOException {
         List<Map<String, Object>> json_response;
         ARXAnonymizer anonymizer = new ARXAnonymizer();
-        ARXResult result = anonymizer.anonymize(dataset, config);
+        ARXResult result = null;
+        try {result = anonymizer.anonymize(dataset, config);}
+        catch (Exception var16) {
+            var16.printStackTrace();
+            System.out.println("An error occurred during anonymization: " + var16.getMessage());
+            return null;
+        }
         DataHandle outputhandle = result.getOutput();
         json_response = outputAnonymizedDataset(outputhandle);
         ARXLattice.ARXNode transformation = result.getGlobalOptimum();
