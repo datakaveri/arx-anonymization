@@ -7,10 +7,12 @@
   "dataset_name": "syntheticMedicalDataset.csv",
   "data_type": "medical",
   "medical": {
+    "sensitive_column": [
+      "Test Result"
+    ],
     "insensitive_columns": [
       "S.No",
       "Gender",
-      "Test Result",
       "Blood Pressure"
     ],
     "suppress": [
@@ -38,7 +40,8 @@
       "Age": 4
     },
     "k_anonymize": {
-      "k": 49
+      "k": 49,
+      "l":2
     },
     "allow_record_suppression": true
   }

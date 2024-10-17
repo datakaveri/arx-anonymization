@@ -22,10 +22,12 @@ public class ARXTestingService {
     public static ARXResponse processProperties(
             String datasetType,
             int k_value,
+            int l_value,
             String suppress_columns,
             String pseudonymize_columns,
             String generalized_columns,
             String insensitive_columns,
+            String sensitive_column,
             Map<String, Double> intervalWidths,
             Map<String, Integer> hierarchyLevels,
             String allowRecordSuppression
@@ -36,19 +38,25 @@ public class ARXTestingService {
         List<String> pseudonymizedColumns = Arrays.asList(pseudonymize_columns.split(","));
         List<String> insensitiveColumns = new ArrayList<>(Arrays.asList(insensitive_columns.split(",")));
         List<String> generalizedColumns = Arrays.asList(generalized_columns.split(","));
+        String sensitiveColumn = sensitive_column;
 
         insensitiveColumns.addAll(pseudonymizedColumns);
         int k = k_value;
+        int l = l_value;
         String datasetPath = "Medical_Data_new.csv";
         if (datasetType.equals("spatioTemporal")){
             datasetPath = "suratITMS_data_csv_50K.csv";
+        }
+        if (datasetType.equals("soil_data")){
+            datasetPath = "/home/kailash/Desktop/arx-anonymization/data/Telangana_Soil_data.csv";
         }
         System.out.println(datasetPath);
         Charset charset = Charset.forName("UTF-8");
         char delimiter = ',';
         List<Integer> sizes = new ArrayList<>();
 
-
+        System.out.println(l);
+        System.out.println(sensitiveColumn);
         for (String column : generalizedColumns) {
             if (hierarchyLevels.containsKey(column)) {
                 int n = hierarchyLevels.get(column);
@@ -75,10 +83,12 @@ public class ARXTestingService {
                 pseudonymizedColumns.toArray(new String[0]),
                 insensitiveColumns.toArray(new String[0]),
                 generalizedColumns.toArray(new String[0]),
+                sensitiveColumn,
                 hierarchyLevels,
                 intervalWidths,
                 sizes,
                 k,
+                l,
                 suppressionlimit,
                 Metric.createLossMetric()
         );

@@ -142,7 +142,6 @@ public class EquivalenceClasses {
     // Main method to demonstrate the functionality
     public static void main(String[] generalizedColumns) {
         try {
-            System.out.println(generalizedColumns);
             
             EquivalenceClasses eqClasses = new EquivalenceClasses("anonymized_output.csv");
 

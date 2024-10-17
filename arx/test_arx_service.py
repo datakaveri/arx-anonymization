@@ -4,6 +4,7 @@ import requests
 # Step 1: Read the configuration file
 config_file_path = "arx/config.json"
 #config_file_path = "arx/config_suratITMS.json"
+#config_file_path = "arx/config_soil.json"
 
 with open(config_file_path, 'r') as config_file:
     config = json.load(config_file)
@@ -13,10 +14,12 @@ dataset_type = config['data_type']
 params = {
     "datasetType": config['data_type'],
     "k": config[dataset_type]['k_anonymize']['k'],
+    "l":config[dataset_type]['k_anonymize']['l'],
     "suppress_columns": ','.join(config[dataset_type]['suppress']),
     "pseudonymize_columns": ','.join(config[dataset_type]['pseudonymize']),
     "generalized_columns": ','.join(config[dataset_type]['generalize']),
     "insensitive_columns": ','.join(config[dataset_type]['insensitive_columns']),
+    "sensitive_column": config[dataset_type]['sensitive_column'][0],
     "widths":config[dataset_type]['width'],
     "num_levels":config[dataset_type]['levels'],
     "allow_record_suppression": config[dataset_type]['allow_record_suppression']

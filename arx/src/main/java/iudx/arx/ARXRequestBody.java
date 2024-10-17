@@ -9,10 +9,12 @@ import java.util.Arrays;
 public class ARXRequestBody {
     private String datasetType;
     private int k;
+    private int l;
     private String suppress_columns;
     private String pseudonymize_columns;
     private String generalized_columns;
     private String insensitive_columns;
+    private String sensitive_column;
     private String allow_record_suppression;
     private Map<String, Double> widths;
     private Map<String, Integer> num_levels;
@@ -33,6 +35,15 @@ public class ARXRequestBody {
     public void setK(int k) {
         this.k = k;
     }
+
+    public int getL() {
+        return l;
+    }
+
+    public void setL(int l) {
+        this.l = l;
+    }
+
 
     public String getSuppress_columns() {
         return suppress_columns;
@@ -66,6 +77,13 @@ public class ARXRequestBody {
         this.insensitive_columns = insensitive_columns;
     }
 
+    public String getSensitive_column() {
+        return sensitive_column;
+    }
+
+    public void setSensitive_column(String sensitive_column) {
+        this.sensitive_column = sensitive_column;
+    }
     public Map<String, Double> getWidths() {
         return widths;
     }

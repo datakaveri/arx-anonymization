@@ -22,6 +22,9 @@ import org.deidentifier.arx.AttributeType;
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.DataHandle;
 import org.deidentifier.arx.criteria.KAnonymity;
+import org.deidentifier.arx.criteria.LDiversity;
+import org.deidentifier.arx.criteria.EntropyLDiversity;
+import org.deidentifier.arx.criteria.DistinctLDiversity;
 import org.deidentifier.arx.metric.Metric;
 
 import org.json.JSONArray;
@@ -39,26 +42,33 @@ public class DatasetAnonymizer {
             String[] attributesToPseudonymize,
             String[] insensitiveColumns,
             String[] generalizedColumns,
+            String sensitiveColumn,
             Map<String, Integer> hierarchyLevels,
             Map<String, Double> intervalWidths,
             List<Integer> sizes,
             int k,
+            int l,
             double suppressionLimit,
             Metric<?> metric
     ) throws IOException, NoSuchAlgorithmException {
         List<Map<String, Object>> json_response;
         Suppress.suppression(datasetPath, attributesToSuppress);
-        Pseudonymize.pseudonymization(attributesToPseudonymize);
+        try{Pseudonymize.pseudonymization(attributesToPseudonymize);}catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("An error occurred during anonymization: " + e.getMessage());
+        }
         Data dataset = Data.create("pseudonymized.csv", charset, delimiter);
-        setupDataset(dataset,insensitiveColumns,generalizedColumns,hierarchyLevels, intervalWidths, sizes);
-        ARXConfiguration config = createARXConfiguration(k, suppressionLimit, metric);
+        setupDataset(dataset,sensitiveColumn,insensitiveColumns,generalizedColumns,hierarchyLevels, intervalWidths, sizes);
+        ARXConfiguration config = createARXConfiguration(k, l, sensitiveColumn,suppressionLimit, metric);
+        System.out.println("configuration created successfully");
         json_response = anonymizeAndAnalyze(metricType,generalizedColumns ,dataset, config);
         return json_response;
     }
 
-    private static void setupDataset(Data dataset, String[] insensitiveColumns,String[] generalizedColumns, Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths, List<Integer> sizes) {
+    private static void setupDataset(Data dataset,String sensitiveColumn,String[] insensitiveColumns,String[] generalizedColumns, Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths, List<Integer> sizes) {
         HierarchyBuilderUtil.buildHierarchies(dataset, generalizedColumns,hierarchyLevels, intervalWidths, sizes);
         setAttributes(dataset, insensitiveColumns, AttributeType.INSENSITIVE_ATTRIBUTE);
+        dataset.getDefinition().setAttributeType(sensitiveColumn, AttributeType.SENSITIVE_ATTRIBUTE);
     }
 
 
@@ -73,11 +83,14 @@ public class DatasetAnonymizer {
 
     }
 
-    private static ARXConfiguration createARXConfiguration(int k, double suppressionLimit, Metric<?> metric) {
+    private static ARXConfiguration createARXConfiguration(int k,int l,String sensitiveColumn, double suppressionLimit, Metric<?> metric) {
         ARXConfiguration config = ARXConfiguration.create();
         config.addPrivacyModel(new KAnonymity(k));
+        System.out.println("privacy model k-anonymity added to configuration");
         config.setSuppressionLimit(suppressionLimit);
         config.setQualityModel(metric);
+        config.addPrivacyModel(new EntropyLDiversity(sensitiveColumn,l));
+        System.out.println("privacy model entropy-based l-diversity added to configuration");
         return config;
     }
 
@@ -88,7 +101,6 @@ public class DatasetAnonymizer {
         DataHandle outputhandle = result.getOutput();
         json_response = outputAnonymizedDataset(outputhandle);
         ARXLattice.ARXNode transformation = result.getGlobalOptimum();
-        //DataAnalysis.analytics(result);
         EquivalenceClasses.main(generalizedColumns);
         AppendAnalytics.main(new String[]{});
         json_response = readJsonAsListOfMaps("anonymized_output.json");

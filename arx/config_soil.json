@@ -1,0 +1,58 @@
+{
+    "operations": [
+      "suppress",
+      "pseudonymize",
+      "k_anonymize"
+    ],
+    "dataset_name": "syntheticMedicalDataset.csv",
+    "data_type": "soil_data",
+    "soil_data": {
+      "sensitive_column": [
+        "Sample No."
+      ],
+      "insensitive_columns": [
+        "Record",
+        "village",
+        "pH",
+        "EC",
+        "OC",
+        "N",
+        "P",
+        "K",
+        "S",
+        "Zn",
+        "Fe",
+        "Cu",
+        "Mn",
+        "B",
+        "state",
+        "district",
+        "subdistrict",
+        "cycle"
+      ],
+      "suppress": [
+        "Khasra No./ Dag No.",
+        "Survey No."
+      ],
+      "pseudonymize": [
+        "Farmer Name"
+      ],
+      "generalize": [
+        "Longitude",
+        "Latitude"
+      ],
+      "width": {
+        "Longitude":4,
+        "Latitude":7
+      },
+      "levels": {
+        "Longitude":6,
+        "Latitude":6
+      },
+      "k_anonymize": {
+        "k": 49,
+        "l":5
+      },
+      "allow_record_suppression": true
+    }
+  }
