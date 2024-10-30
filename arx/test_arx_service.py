@@ -2,8 +2,8 @@ import json
 import requests
 
 # Step 1: Read the configuration file
-config_file_path = "arx/config.json"
-#config_file_path = "arx/config_suratITMS.json"
+#config_file_path = "arx/config.json"
+config_file_path = "arx/config_suratITMS.json"
 
 with open(config_file_path, 'r') as config_file:
     config = json.load(config_file)
