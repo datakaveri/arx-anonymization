@@ -7,8 +7,10 @@
   "dataset_name": "suratITMS_data_csv_small.csv",
   "data_type": "spatioTemporal",
   "medical": {
+    "sensitive_column": [
+      "license_plate"
+    ],
     "suppress": [
-      "license_plate",
       "location.coordinates"
     ],
     "pseudonymize": [
@@ -43,7 +45,9 @@
       "speed":5
     },
     "k_anonymize": {
-      "k": 50
+      "k": 50,
+      "l": 4,
+      "t":0.01
       },
     "allow_record_suppression": "True"
     }

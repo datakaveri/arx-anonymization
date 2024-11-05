@@ -5,6 +5,7 @@ import requests
 config_file_path = "arx/config.json"
 #config_file_path = "arx/config_suratITMS.json"
 #config_file_path = "arx/config_soil.json"
+config_file_path = "arx/config_credit.json"
 
 with open(config_file_path, 'r') as config_file:
     config = json.load(config_file)

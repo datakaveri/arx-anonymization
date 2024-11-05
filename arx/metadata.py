@@ -2,7 +2,7 @@ import pandas as pd
 import json
 import io
 
-csv_file = '/home/kailash/Desktop/arx_anonymization/arx/Medical_Data_new.csv' 
+csv_file = '/home/kailash/Desktop/arx-anonymization/arx/Medical_Data_new.csv' 
 df = pd.read_csv(csv_file)
 buffer = io.StringIO()
 df.info(buf=buffer)

@@ -63,7 +63,8 @@ public class ARXTestingController {
                 datasetType,k,l, t,suppress_columns, pseudonymize_columns, generalized_columns, insensitive_columns,sensitive_column,widths,num_levels, allow_record_suppression
             );
         } catch (Exception e) {
-            return new ARXTestingService.ARXResponse("Failed", Collections.emptyList());
+            String errorMessage = e.getMessage();
+            return new ARXTestingService.ARXResponse("Failed", Collections.emptyList(), errorMessage);
         }
     }
 }

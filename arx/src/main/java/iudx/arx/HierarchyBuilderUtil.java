@@ -6,6 +6,7 @@ import org.deidentifier.arx.aggregates.HierarchyBuilderIntervalBased;
 import org.deidentifier.arx.aggregates.HierarchyBuilderRedactionBased;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,40 +21,38 @@ public class HierarchyBuilderUtil {
      * @param hierarchyLevels Map containing hierarchy levels for each column.
      * @param intervalWidths  Map containing interval widths for each column (used for interval-based hierarchies).
      * @param sizes           List containing sizes for redaction-based hierarchy.
+     * @return List of messages generated during hierarchy building.
      */
-    public static void buildHierarchies(Data dataset, String[]generalizedColumns,Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths,
-                                        List<Integer> sizes){
+    public static List<String> buildHierarchies(Data dataset, String[] generalizedColumns, Map<String, Integer> hierarchyLevels,
+                                                Map<String, Double> intervalWidths, List<Integer> sizes) {
+        List<String> messages = new ArrayList<>();
         Map<String, Integer> anonymizationLevels = new HashMap<>();
-        System.out.println("\n");
+
         for (String columnName : generalizedColumns) {
             int colIndex = getColumnIndex(dataset, columnName);
             if (colIndex == -1) {
-                System.out.println("Column " + columnName + " not found in dataset.");
-                continue;  
+                messages.add("Column " + columnName + " not found in dataset.");
+                continue;
             }
 
-            System.out.println("Building hierarchy for column: " + columnName);
+            messages.add("Building hierarchy for column: " + columnName);
 
-      
             String hierarchyType = "interval";
-            if (Objects.equals(columnName, "PIN Code")){
+            if (Objects.equals(columnName, "PIN Code")) {
                 hierarchyType = "redaction";
             }
+            
             if (hierarchyType.equals("interval")) {
-   
                 buildIntervalBasedHierarchy(dataset, columnName, hierarchyLevels.get(columnName), intervalWidths.get(columnName), sizes);
                 anonymizationLevels.put(columnName, hierarchyLevels.get(columnName));
-            }
-            else {
+            } else {
                 buildRedactionBasedHierarchy(dataset, columnName);
             }
 
-            
-            System.out.println(anonymizationLevels);
+            messages.add("Anonymization levels: " + anonymizationLevels);
         }
-        System.out.println("\n");
+        return messages;
     }
-
 
     private static void buildIntervalBasedHierarchy(Data dataset, String columnName, int hierarchyLevel, double intervalWidth, List<Integer> sizes) {
         HierarchyBuilderIntervalBased<Double> builder = HierarchyBuilderIntervalBased.create(DataType.DECIMAL);
@@ -87,7 +86,6 @@ public class HierarchyBuilderUtil {
 
     private static void buildRedactionBasedHierarchy(Data dataset, String columnName) {
         HierarchyBuilderRedactionBased<Object> builder = HierarchyBuilderRedactionBased.create('*');
-        int colIndex = getColumnIndex(dataset, columnName);
         dataset.getDefinition().setAttributeType(columnName, builder);
     }
 
