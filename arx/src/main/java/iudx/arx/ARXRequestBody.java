@@ -7,16 +7,16 @@ import java.util.Map;
 import java.util.Arrays;
 
 public class ARXRequestBody {
+    private String dataset_name;
     private String datasetType;
     private int k;
     private int l;
-    private double t;
     private String suppress_columns;
     private String pseudonymize_columns;
     private String generalized_columns;
     private String insensitive_columns;
     private String sensitive_column;
-    private String allow_record_suppression;
+    private double suppression_limit; // Add this field
     private Map<String, Double> widths;
     private Map<String, Integer> num_levels;
 
@@ -45,14 +45,6 @@ public class ARXRequestBody {
         this.l = l;
     }
 
-    public double getT() {
-        return t;
-    }
-
-    public void setT(double t) {
-        this.t = t;
-    }
-
     public String getSuppress_columns() {
         return suppress_columns;
     }
@@ -61,11 +53,20 @@ public class ARXRequestBody {
         this.suppress_columns = suppress_columns;
     }
 
+
+    public String getDataset_name() {
+        return dataset_name;
+    }
+
+    public void setDataset_name(String dataset_name) {
+        this.dataset_name = dataset_name;
+    }
+
     public String getPseudonymize_columns() {
         return pseudonymize_columns;
     }
 
-    public String getGeneralized_columns() {
+   public String getGeneralized_columns() {
         return generalized_columns;
     }
 
@@ -92,6 +93,15 @@ public class ARXRequestBody {
     public void setSensitive_column(String sensitive_column) {
         this.sensitive_column = sensitive_column;
     }
+
+    public double getSuppressionLimit() {
+        return suppression_limit;
+    }
+
+    public void setSuppressionLimit(double suppression_limit) {
+        this.suppression_limit = suppression_limit;
+    }
+
     public Map<String, Double> getWidths() {
         return widths;
     }
@@ -108,15 +118,7 @@ public class ARXRequestBody {
         this.num_levels = num_levels;
     }
 
-    public String getAllow_record_suppression() {
-        return allow_record_suppression;
-    }
-
-    public void setAllow_record_suppression(String allow_record_suppression) {
-        this.allow_record_suppression = allow_record_suppression;
-    }
-
     public void print_request_body(){
-        System.out.println(k+" "+allow_record_suppression);
+        System.out.println(k+" "+suppression_limit);
     }
 }

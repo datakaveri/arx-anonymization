@@ -1,0 +1,7 @@
+chunk,Age,Gender,Blood Group,PIN Code_encoded,BMI_encoded
+1,2,3,3,4,9
+2,3,3,3,9,3
+3,3,1,3,9,4
+4,3,1,3,9,4
+5,3,3,3,9,3
+average,2,2,3,8,4

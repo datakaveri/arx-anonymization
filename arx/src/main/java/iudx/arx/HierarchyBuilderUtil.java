@@ -2,11 +2,14 @@ package iudx.arx;
 
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.DataType;
+import org.deidentifier.arx.AttributeType;
 import org.deidentifier.arx.aggregates.HierarchyBuilderIntervalBased;
 import org.deidentifier.arx.aggregates.HierarchyBuilderRedactionBased;
+import org.deidentifier.arx.aggregates.HierarchyBuilderOrderBased;
+import org.deidentifier.arx.aggregates.HierarchyBuilderGroupingBased;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,35 +26,112 @@ public class HierarchyBuilderUtil {
      * @param sizes           List containing sizes for redaction-based hierarchy.
      * @return List of messages generated during hierarchy building.
      */
-    public static List<String> buildHierarchies(Data dataset, String[] generalizedColumns, Map<String, Integer> hierarchyLevels,
+    public static void buildHierarchies(Data dataset, String[] generalizedColumns, Map<String, Integer> hierarchyLevels,
                                                 Map<String, Double> intervalWidths, List<Integer> sizes) {
-        List<String> messages = new ArrayList<>();
-        Map<String, Integer> anonymizationLevels = new HashMap<>();
-
+        System.out.println("\n=== Starting Hierarchy Building ===");
+        System.out.println("Columns to process: " + Arrays.toString(generalizedColumns));
+        
         for (String columnName : generalizedColumns) {
-            int colIndex = getColumnIndex(dataset, columnName);
-            if (colIndex == -1) {
-                messages.add("Column " + columnName + " not found in dataset.");
-                continue;
-            }
+            try {
+                System.out.println("\nProcessing column: " + columnName);
+                System.out.println("Hierarchy level: " + hierarchyLevels.get(columnName));
+                System.out.println("Interval width: " + intervalWidths.get(columnName));
 
-            messages.add("Building hierarchy for column: " + columnName);
-
-            String hierarchyType = "interval";
-            if (Objects.equals(columnName, "PIN Code")) {
-                hierarchyType = "redaction";
+                switch (columnName) {
+                    case "Blood Group":
+                        System.out.println("Building blood group hierarchy...");
+                        buildBloodGroupHierarchy(dataset, columnName);
+                        break;
+                    case "Profession":
+                        System.out.println("Building profession hierarchy...");
+                        buildProfessionHierarchy(dataset, columnName);
+                        break;
+                    case "PIN Code":
+                        System.out.println("Building PIN code hierarchy...");
+                        buildRedactionBasedHierarchy(dataset, columnName);
+                        break;
+                    case "Gender":
+                        System.out.println("Building Gender hierarchy...");
+                        buildGenderHierarchy(dataset, columnName);
+                        break;
+                    default:
+                        System.out.println("Building interval-based hierarchy...");
+                        System.out.println("Parameters:");
+                        System.out.println("- Level: " + hierarchyLevels.get(columnName));
+                        System.out.println("- Width: " + intervalWidths.get(columnName));
+                        System.out.println("- Sizes: " + sizes);
+                        
+                        buildIntervalBasedHierarchy(dataset, columnName,
+                                hierarchyLevels.get(columnName),
+                                intervalWidths.get(columnName), sizes);
+                }
+                System.out.println("Successfully built hierarchy for: " + columnName);
+                
+            } catch (Exception e) {
+                System.err.println("Error building hierarchy for " + columnName + ": " + e.getMessage());
+                e.printStackTrace();
             }
-            
-            if (hierarchyType.equals("interval")) {
-                buildIntervalBasedHierarchy(dataset, columnName, hierarchyLevels.get(columnName), intervalWidths.get(columnName), sizes);
-                anonymizationLevels.put(columnName, hierarchyLevels.get(columnName));
-            } else {
-                buildRedactionBasedHierarchy(dataset, columnName);
-            }
-
-            messages.add("Anonymization levels: " + anonymizationLevels);
         }
-        return messages;
+    }
+
+    private static void buildBloodGroupHierarchy(Data dataset, String columnName) {
+        // Create a string array for the hierarchy
+        String[][] hierarchy = {
+            {"A+", "A", "*"},
+            {"A-", "A", "*"},
+            {"B+", "B", "*"},
+            {"B-", "B", "*"},
+            {"AB+", "AB", "*"},
+            {"AB-", "AB", "*"},
+            {"O+", "O", "*"},
+            {"O-", "O", "*"},
+            {"NULL", "*", "*"},  // Add NULL handling
+            {"", "*", "*"},      // Add empty string handling
+            {"*", "*", "*"}      // Add catch-all
+        };
+        
+        // Create hierarchy directly
+        AttributeType.Hierarchy bloodGroupHierarchy = AttributeType.Hierarchy.create(hierarchy);
+        dataset.getDefinition().setAttributeType(columnName, bloodGroupHierarchy);
+    }
+
+    private static void buildProfessionHierarchy(Data dataset, String columnName) {
+        // Create a string array for the hierarchy
+        String[][] hierarchy = {
+    {"Medical Specialists", "Healthcare", "Service Sector", "Workforce Sector"},
+    {"Allied Health", "Healthcare", "Service Sector", "Workforce Sector"},
+    {"Nursing", "Healthcare", "Service Sector", "Workforce Sector"},
+    {"Healthcare Support", "Healthcare", "Service Sector", "Workforce Sector"},
+    {"K-12 Education Teacher", "Education", "Service Sector", "Workforce Sector"},
+    {"Higher Education Teacher", "Education", "Service Sector", "Workforce Sector"},
+    {"Supplemental Education Teacher", "Education", "Service Sector", "Workforce Sector"},
+    {"University Professor", "Education", "Service Sector", "Workforce Sector"},
+    {"Performing Arts", "Creative", "Non-Service", "Workforce Sector"},
+    {"Visual & Media Arts", "Creative", "Non-Service", "Workforce Sector"},
+    {"Design", "Creative", "Non-Service", "Workforce Sector"},
+    {"Mixed Media Artist", "Creative", "Non-Service", "Workforce Sector"},
+    {"Traditional Engineering", "Engineering", "Non-Service", "Workforce Sector"},
+    {"Software Engineering", "Engineering", "Non-Service", "Workforce Sector"},
+    {"Data & Analytics", "Engineering", "Non-Service", "Workforce Sector"},
+    {"AI & Machine Learning", "Engineering", "Non-Service", "Workforce Sector"},
+        };
+
+        // Create hierarchy directly
+        AttributeType.Hierarchy professionHierarchy = AttributeType.Hierarchy.create(hierarchy);
+        dataset.getDefinition().setAttributeType(columnName, professionHierarchy);
+    }
+
+    private static void buildGenderHierarchy(Data dataset, String columnName) {
+        String[][] hierarchy = {
+            {"Male", "Male", "*"},
+            {"Female", "Female", "*"},
+            {"", "*", "*"},        // Handles empty string
+            {"NULL", "*", "*"},    // Handles nulls
+            {"*", "*", "*"}        // Catch-all
+        };
+
+        AttributeType.Hierarchy genderHierarchy = AttributeType.Hierarchy.create(hierarchy);
+        dataset.getDefinition().setAttributeType(columnName, genderHierarchy);
     }
 
     private static void buildIntervalBasedHierarchy(Data dataset, String columnName, int hierarchyLevel, double intervalWidth, List<Integer> sizes) {
@@ -86,6 +166,7 @@ public class HierarchyBuilderUtil {
 
     private static void buildRedactionBasedHierarchy(Data dataset, String columnName) {
         HierarchyBuilderRedactionBased<Object> builder = HierarchyBuilderRedactionBased.create('*');
+        int colIndex = getColumnIndex(dataset, columnName);
         dataset.getDefinition().setAttributeType(columnName, builder);
     }
 

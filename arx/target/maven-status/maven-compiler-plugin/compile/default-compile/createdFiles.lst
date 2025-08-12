@@ -1,7 +1,7 @@
 iudx/arx/ARXRequestBody.class
 iudx/arx/AppendAnalytics.class
-iudx/arx/EquivalenceClasses.class
 iudx/arx/ARXTestingService$ARXResponse.class
+iudx/arx/EquivalenceClasses.class
 iudx/arx/ArxApplication.class
 iudx/arx/ColumnHierarchyConfigParser.class
 iudx/arx/DatasetAnonymizer.class

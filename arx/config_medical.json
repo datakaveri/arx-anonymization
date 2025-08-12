@@ -1,0 +1,52 @@
+{
+  "operations": [
+    "suppress",
+    "pseudonymize",
+    "k_anonymize"
+  ],
+  "dataset_name": "/mnt/d/PS2/ARX/arx-anonymization/arx/small_data/small_chunk1.csv",
+  "data_type": "medical",
+  "num_chunks": 5,
+  "medical": {
+    "sensitive_column": [
+      "Health Condition"
+    ],
+    "insensitive_columns": [
+      "id",
+      "Health Condition"
+    ],
+    "suppress": [
+      "Date of Birth",
+      "Address"
+    ],
+    "pseudonymize": [
+      "Name",
+      "Patient ID"
+    ],
+    "generalize": [
+      "Age",
+      "Gender",
+      "Blood Group",
+      "PIN Code_encoded",
+      "BMI_encoded"      
+    ],
+    "width": {
+      "Age": 1,
+      "PIN Code_encoded": 1 ,
+      "BMI_encoded": 1           
+    },
+    "levels": {
+      "Age": 9,
+      "Gender": 2,
+      "Blood Group": 3,
+      "PIN Code_encoded": 12,
+      "BMI_encoded": 8      
+    },
+    "k_anonymize": {
+      "k": 2,
+      "l": 1
+    },
+    "allow_record_suppression": false,
+    "suppression_limit": 0.01
+  }
+}

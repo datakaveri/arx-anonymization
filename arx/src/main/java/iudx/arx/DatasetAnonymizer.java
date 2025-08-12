@@ -22,11 +22,10 @@ import org.deidentifier.arx.AttributeType;
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.DataHandle;
 import org.deidentifier.arx.criteria.KAnonymity;
+import org.deidentifier.arx.metric.Metric;
 import org.deidentifier.arx.criteria.LDiversity;
 import org.deidentifier.arx.criteria.EntropyLDiversity;
 import org.deidentifier.arx.criteria.DistinctLDiversity;
-import org.deidentifier.arx.criteria.EqualDistanceTCloseness;
-import org.deidentifier.arx.metric.Metric;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -49,25 +48,35 @@ public class DatasetAnonymizer {
             List<Integer> sizes,
             int k,
             int l,
-            double t,
-            double suppressionLimit,
+            double suppression_limit,
             Metric<?> metric
     ) throws IOException, NoSuchAlgorithmException {
         List<Map<String, Object>> json_response;
-        Suppress.suppression(datasetPath, attributesToSuppress);
-        try{Pseudonymize.pseudonymization(attributesToPseudonymize);}catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("An error occurred during anonymization: " + e.getMessage());
-        }
-        Data dataset = Data.create("pseudonymized.csv", charset, delimiter);
-        setupDataset(dataset,sensitiveColumn,insensitiveColumns,generalizedColumns,hierarchyLevels, intervalWidths, sizes);
-        ARXConfiguration config = createARXConfiguration(k, l, t, sensitiveColumn,suppressionLimit, metric);
-        System.out.println("configuration created successfully");
+        System.out.println("Starting suppression...");
+        System.out.flush();
+        //Suppress.suppression(datasetPath, attributesToSuppress);
+        //System.out.println("Suppression completed");
+        //Pseudonymize.pseudonymization(attributesToPseudonymize);
+        try {
+        System.out.println("Loading dataset from: " + datasetPath);
+        System.out.flush();
+
+        Data dataset = Data.create(datasetPath, charset, delimiter);
+        System.out.println("Dataset loaded");
+        System.out.flush();
+
+        setupDataset(dataset, sensitiveColumn, insensitiveColumns, generalizedColumns,hierarchyLevels, intervalWidths, sizes);
+        ARXConfiguration config = createARXConfiguration(k, l, sensitiveColumn, suppression_limit, metric);
         json_response = anonymizeAndAnalyze(metricType,generalizedColumns ,dataset, config);
         return json_response;
+    } catch(Exception e) {
+        System.err.println("ERROR DURING ANONYMISATION:");
+        e.printStackTrace();
+        throw e;
     }
+}
 
-    private static void setupDataset(Data dataset,String sensitiveColumn,String[] insensitiveColumns,String[] generalizedColumns, Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths, List<Integer> sizes) {
+    private static void setupDataset(Data dataset, String sensitiveColumn, String[] insensitiveColumns,String[] generalizedColumns, Map<String, Integer> hierarchyLevels, Map<String, Double> intervalWidths, List<Integer> sizes) {
         HierarchyBuilderUtil.buildHierarchies(dataset, generalizedColumns,hierarchyLevels, intervalWidths, sizes);
         setAttributes(dataset, insensitiveColumns, AttributeType.INSENSITIVE_ATTRIBUTE);
         dataset.getDefinition().setAttributeType(sensitiveColumn, AttributeType.SENSITIVE_ATTRIBUTE);
@@ -85,78 +94,136 @@ public class DatasetAnonymizer {
 
     }
 
-    private static ARXConfiguration createARXConfiguration(int k,int l,double t,String sensitiveColumn, double suppressionLimit, Metric<?> metric) {
+    private static ARXConfiguration createARXConfiguration(int k, int l, String sensitiveColumn, double suppression_limit, Metric<?> metric) {
         ARXConfiguration config = ARXConfiguration.create();
         config.addPrivacyModel(new KAnonymity(k));
-        System.out.println("privacy model k-anonymity added to configuration");
-        config.setSuppressionLimit(suppressionLimit);
+        config.setSuppressionLimit(suppression_limit);
         config.setQualityModel(metric);
         config.addPrivacyModel(new EntropyLDiversity(sensitiveColumn,l));
-        System.out.println("privacy model entropy-based l-diversity added to configuration");
-        config.addPrivacyModel(new EqualDistanceTCloseness(sensitiveColumn, t));
-        System.out.println("privacy model equal-distance t-closeness added to configuration");
         return config;
     }
 
-    private static List<Map<String, Object>> anonymizeAndAnalyze(String metricType, String[] generalizedColumns,Data dataset, ARXConfiguration config) throws IOException {
+    private static List<Map<String, Object>> anonymizeAndAnalyze(String metricType, String[] generalizedColumns, Data dataset, ARXConfiguration config) throws IOException {
+        System.out.println("\n=== Starting Anonymization Process ===");
         List<Map<String, Object>> json_response;
-        ARXAnonymizer anonymizer = new ARXAnonymizer();
-        ARXResult result = null;
-        try {result = anonymizer.anonymize(dataset, config);}
-        catch (Exception var16) {
-            var16.printStackTrace();
-            System.out.println("An error occurred during anonymization: " + var16.getMessage());
-            return null;
-        }
-        DataHandle outputhandle = result.getOutput();
-        json_response = outputAnonymizedDataset(outputhandle);
-        ARXLattice.ARXNode transformation = result.getGlobalOptimum();
-        EquivalenceClasses.main(generalizedColumns);
-        AppendAnalytics.main(new String[]{});
-        json_response = readJsonAsListOfMaps("anonymized_output.json");
+        
+        try {
+            System.out.println("1. Creating ARX anonymizer...");
+            ARXAnonymizer anonymizer = new ARXAnonymizer();
+            
+            System.out.println("2. Running anonymization...");
+            System.out.println("- Dataset rows: " + dataset.getHandle().getNumRows());
+            System.out.println("- Dataset columns: " + dataset.getHandle().getNumColumns());
+            System.out.println("- Privacy model: " + config.getPrivacyModels());
+            ARXResult result = anonymizer.anonymize(dataset, config);
+            
+            if (result == null) {
+                throw new RuntimeException("Anonymization failed - null result");
+            }
+            
+            System.out.println("3. Getting output handle...");
+            DataHandle outputhandle = result.getOutput();
+            if (outputhandle == null) {
+                throw new RuntimeException("Output handle is null");
+            }
+            
+            System.out.println("4. Writing to JSON...");
+            json_response = outputAnonymizedDataset(outputhandle);
+            
+            System.out.println("5. Getting global optimum...");
+            ARXLattice.ARXNode transformation = result.getGlobalOptimum();
 
-        return json_response;
+            if (transformation == null) {
+                System.out.println("Warning: No global optimum found");
+            } else {
+                System.out.println("Transformation level: " + Arrays.toString(transformation.getTransformation()));
+                System.out.println("Information loss: " + result.getGlobalOptimum().getLowestScore());
+            }
+            
+            System.out.println("6. Running equivalence classes analysis...");
+            EquivalenceClasses.main(generalizedColumns);
+            
+            //System.out.println("7. Appending analytics...");
+            //AppendAnalytics.main(new String[]{});
+            
+            //System.out.println("8. Reading final JSON...");
+            //json_response = readJsonAsListOfMaps("anonymized_output.json");
+
+            Map<String, Object> metadata = new HashMap<>();
+            metadata.put("transformation_node", transformation.getTransformation());
+            metadata.put("information_loss", transformation.getLowestScore());
+            metadata.put("meta", true); // marker to identify metadata
+            json_response.add(metadata);
+            System.out.println("Metadata added: " + metadata);
+            System.out.println("Full JSON response size: " + json_response.size());
+
+            //System.out.println("TEST DEBUG STATEMENT FOR TRANSFORMATION NODE;");
+            
+            System.out.println("=== Anonymization Process Complete ===");
+            
+            return json_response;
+            
+        } catch (Exception e) {
+            System.err.println("\nERROR in anonymization process:");
+            System.err.println("Message: " + e.getMessage());
+            System.err.println("Location: " + e.getStackTrace()[0]);
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private static List<Map<String, Object>> outputAnonymizedDataset(DataHandle handle) throws IOException {
         List<Map<String, Object>> result = new ArrayList<>();
-        CsvParserSettings parserSettings = new CsvParserSettings();
-        CsvParser parser2 = new CsvParser(parserSettings);
-        List<String[]> allRows2 = parser2.parseAll(new File("pseudonymized.csv"));
-        String[] headers = allRows2.get(0);
 
-        for (int rowIndex = 0; rowIndex < handle.getNumRows(); ++rowIndex) {
+        // Get headers directly from handle
+        String[] headers = new String[handle.getNumColumns()];
+        for (int i = 0; i < handle.getNumColumns(); i++) {
+            headers[i] = handle.getAttributeName(i);
+        }
+        System.out.println("Header length: " + headers.length + ", Headers: " + Arrays.toString(headers));
+
+        // Process anonymized dataset
+        for (int rowIndex = 0; rowIndex < handle.getNumRows(); rowIndex++) {
             Map<String, Object> rowMap = new HashMap<>();
 
-            for (int colIndex = 0; colIndex < headers.length; ++colIndex) {
+            for (int colIndex = 0; colIndex < headers.length; colIndex++) {
                 String columnName = headers[colIndex];
+
+                // Ensure column index is within bounds
+                if (colIndex >= handle.getNumColumns()) {
+                    System.err.println("Column index out of bounds: " + colIndex);
+                    continue;
+                }
+
                 String value = handle.getValue(rowIndex, colIndex);
+
+                // Sanitize value
+                if (value == null) value = "";
                 value = value.replace("\n", " ").replace("\r", " ");
+
                 rowMap.put(columnName, value);
             }
 
             result.add(rowMap);
         }
 
-        FileWriter fileWriter = new FileWriter("anonymized_output.json");
+        System.out.println("Processing completed. Rows processed: " + result.size());
 
-        try {
+        // Write output to JSON
+        try (FileWriter fileWriter = new FileWriter("anonymized_output.json")) {
             fileWriter.write(convertToJsonString(result));
         } catch (Throwable var12) {
-            try {
-                fileWriter.close();
-            } catch (Throwable var11) {
-                var12.addSuppressed(var11);
-            }
+            System.err.println("Error writing JSON: " + var12.getMessage());
             throw var12;
         }
 
-        fileWriter.close();
+        // Save CSV output
         handle.save(new File("anonymized_output.csv"), ',');
         System.out.println("Anonymized dataset saved to anonymized_output.csv");
+
         return result;
     }
-
+    
     private static String convertToJsonString(List<Map<String, Object>> list) {
         StringBuilder jsonBuilder = new StringBuilder();
         jsonBuilder.append("{\n");
@@ -183,19 +250,20 @@ public class DatasetAnonymizer {
         jsonBuilder.append("}");
         return jsonBuilder.toString();
     }
+    
     public static List<Map<String, Object>> readJsonAsListOfMaps(String filePath) throws IOException {
         // Read the entire JSON file as a String
         String jsonContent = new String(Files.readAllBytes(Paths.get(filePath)));
-        
+    
         // Parse the JSON content
         JSONObject jsonObject = new JSONObject(jsonContent);
-
+    
         // Create a list to store the JSON content as Maps
         List<Map<String, Object>> jsonResponse = new ArrayList<>();
-
+    
         // Convert the JSONObject to a Map
         Map<String, Object> jsonMap = jsonObject.toMap();
-        
+    
         // Iterate through the entries in the map
         for (Map.Entry<String, Object> entry : jsonMap.entrySet()) {
             // Check if the entry value is a JSONArray
@@ -212,7 +280,7 @@ public class DatasetAnonymizer {
                 jsonResponse.add(Map.of(entry.getKey(), entry.getValue()));
             }
         }
-
+    
         return jsonResponse;
     }
 }
