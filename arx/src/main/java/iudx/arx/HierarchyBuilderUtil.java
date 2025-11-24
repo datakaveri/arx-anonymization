@@ -85,9 +85,6 @@ public class HierarchyBuilderUtil {
             {"AB-", "AB", "*"},
             {"O+", "O", "*"},
             {"O-", "O", "*"},
-            {"NULL", "*", "*"},  // Add NULL handling
-            {"", "*", "*"},      // Add empty string handling
-            {"*", "*", "*"}      // Add catch-all
         };
         
         // Create hierarchy directly
@@ -123,11 +120,8 @@ public class HierarchyBuilderUtil {
 
     private static void buildGenderHierarchy(Data dataset, String columnName) {
         String[][] hierarchy = {
-            {"Male", "Male", "*"},
-            {"Female", "Female", "*"},
-            {"", "*", "*"},        // Handles empty string
-            {"NULL", "*", "*"},    // Handles nulls
-            {"*", "*", "*"}        // Catch-all
+            {"Male", "*"},
+            {"Female", "*"},
         };
 
         AttributeType.Hierarchy genderHierarchy = AttributeType.Hierarchy.create(hierarchy);

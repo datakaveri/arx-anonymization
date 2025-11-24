@@ -6,7 +6,7 @@
   ],
   "dataset_name": "/mnt/d/PS2/ARX/arx-anonymization/arx/small_data/small_chunk1.csv",
   "data_type": "medical",
-  "num_chunks": 5,
+  "num_chunks": 1,
   "medical": {
     "sensitive_column": [
       "Health Condition"
@@ -26,9 +26,9 @@
     "generalize": [
       "Age",
       "Gender",
-      "Blood Group",
       "PIN Code_encoded",
-      "BMI_encoded"      
+      "BMI_encoded",
+      "Blood Group"      
     ],
     "width": {
       "Age": 1,
@@ -37,7 +37,7 @@
     },
     "levels": {
       "Age": 9,
-      "Gender": 2,
+      "Gender": 1,
       "Blood Group": 3,
       "PIN Code_encoded": 12,
       "BMI_encoded": 8      
