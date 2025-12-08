@@ -17,6 +17,26 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+/**
+ * ARXTestingService
+ *
+ * Service layer that performs dataset anonymization using the ARX framework.
+ *
+ * Description:
+ *   This service contains the core logic for applying anonymization operations
+ *   such as suppression, pseudonymization, and k-anonymity. It interacts with
+ *   the ARX library to build hierarchies, configure privacy models, run
+ *   anonymization, and generate analytics. It acts as the processing layer
+ *   between the controller and the ARX engine.
+ *
+ * Responsibilities:
+ *   - Load and preprocess input datasets
+ *   - Apply anonymization operations (suppress, pseudonymize, generalize)
+ *   - Configure ARX privacy models and execute anonymization
+ *   - Generate and return analytics (e.g., information loss, equivalence classes)
+ */
+
+
 @Service
 public class ARXTestingService {
     public static ARXResponse processProperties(
@@ -41,7 +61,7 @@ public class ARXTestingService {
         List<String> generalizedColumns = Arrays.asList(generalized_columns.split(","));
         String sensitiveColumn = sensitive_column;
 
-        insensitiveColumns.addAll(pseudonymizedColumns);
+        //insensitiveColumns.addAll(pseudonymizedColumns);
         int k = k_value;
         int l = l_value;
         String datasetPath = dataset_name;

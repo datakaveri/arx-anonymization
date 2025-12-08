@@ -16,6 +16,14 @@ import java.util.List;
 import java.util.Map;
 
 public class Pseudonymize {
+    /**
+     * Performs pseudonymization on specified columns of a CSV dataset by creating hashed values.
+     *
+     * @param attributesToPseudonymize An array of column names that should be pseudonymized.
+     * @throws IOException If there is an error reading or writing CSV files.
+     * @throws NoSuchAlgorithmException If the hashing algorithm (SHA-256) is not available.
+     */
+
     public static void pseudonymization(String[] attributesToPseudonymize) throws IOException, NoSuchAlgorithmException {
         CsvParserSettings parserSettings = new CsvParserSettings();
         CsvParser parser3 = new CsvParser(parserSettings);
@@ -45,6 +53,18 @@ public class Pseudonymize {
             }
         }
     }
+
+    /**
+     * Creates a CsvWriter that writes a pseudonymized version of a CSV dataset.
+     *
+     * @param headers               The column headers for the CSV file.
+     * @param indicesToPseudonymize List of column indices that should be pseudonymized.
+     * @param allRows               The full dataset including headers, with each row as a String array.
+     * @return CsvWriter A CsvWriter object that has written all pseudonymized rows to the file.
+     * @throws IOException If there is an error creating or writing the CSV file.
+     * @throws NoSuchAlgorithmException If the hashing algorithm (SHA-256) is not available.
+     */
+
 
     private static CsvWriter getCsvWriter(String[] headers, List<Integer> indicesToPseudonymize, List<String[]> allRows) throws IOException, NoSuchAlgorithmException {
         List<String> newHeaders = new ArrayList(Arrays.asList(headers));
@@ -78,6 +98,14 @@ public class Pseudonymize {
 
         return writer;
     }
+
+    /**
+     * Generates a SHA-256 hash of the given string value for pseudonymization.
+     *
+     * @param value The input string to be pseudonymized.
+     * @return String The SHA-256 hash of the input value represented as a hexadecimal string.
+     * @throws NoSuchAlgorithmException If the SHA-256 algorithm is not available.
+     */
 
     private static String pseudonymizeValue(String value) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");

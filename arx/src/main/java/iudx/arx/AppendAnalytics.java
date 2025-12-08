@@ -9,6 +9,31 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.FileWriter;
 
+/**
+ * Appends analytics data to the anonymized output JSON file.
+ *
+ * One-line brief:
+ *   Merges the "size_distribution" analytics data into the anonymized output JSON file.
+ *
+ * Description:
+ *   This function reads both the anonymized output file and the analytics file, parses them as JSON,
+ *   and integrates the "size_distribution" object from the analytics JSON into the root level
+ *   of the anonymized output JSON. The updated anonymized output file is then saved with
+ *   pretty-printed formatting for readability.
+ *
+ * Responsibilities:
+ *   - Load the anonymized output JSON from the given file path.
+ *   - Load the analytics JSON from its file path.
+ *   - Extract the "size_distribution" section from analytics.
+ *   - Append the extracted data to the anonymized output JSON object.
+ *   - Write the modified JSON back to the anonymized output file.
+ *
+ * Exceptions:
+ *   IOException   - If reading or writing to the files fails.
+ *   JSONException - If parsing the JSON content fails.
+ */
+
+
 public class AppendAnalytics {
 
     public static void main(String[] args) {

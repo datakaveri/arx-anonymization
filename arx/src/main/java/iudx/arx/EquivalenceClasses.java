@@ -35,7 +35,19 @@ public class EquivalenceClasses {
         data = readCsv(csvFile);
     }
 
-    // Read CSV file and return data as List of Maps
+    /**
+     * Reads a CSV file and returns its contents as a list of maps.
+     *
+     * Description:
+     *   This function parses the specified CSV file, treating the first row as headers.
+     *   Each subsequent row is converted into a map where keys are column headers and 
+     *   values are the corresponding cell values. All rows are collected into a list.
+     *
+     * @param csvFile The path to the CSV file to be read.
+     * @return List<Map<String, String>> A list of maps representing rows of the CSV file.
+     * @throws IOException If there is an error reading the CSV file.
+     */
+
     private List<Map<String, String>> readCsv(String csvFile) throws IOException {
         List<Map<String, String>> records = new ArrayList<>();
         try (Reader reader = Files.newBufferedReader(Paths.get(csvFile));
@@ -50,7 +62,19 @@ public class EquivalenceClasses {
         return records;
     }
 
-    // Group data based on specified columns to form equivalence classes
+    /**
+     * Computes equivalence classes by grouping data based on specified columns.
+     *
+     * Description:
+     *   This function groups rows of the dataset according to the values in the specified 
+     *   columns, forming equivalence classes. For each group, it calculates the size 
+     *   (number of rows) and returns a list of maps containing the group values and sizes.
+     *
+     * @param columns An array of column names to group by when forming equivalence classes.
+     * @return List<Map<String, Object>> A list of maps where each map represents an equivalence class 
+     *                                    with keys "Group" (list of values) and "Size" (number of rows).
+     */
+
     public List<Map<String, Object>> computeEquivalenceClasses(String[] columns) {
         equivalenceClasses = data.stream()
             .collect(Collectors.groupingBy(row -> Arrays.stream(columns)
@@ -76,7 +100,17 @@ public class EquivalenceClasses {
     }
     
 
-    // Remove outliers using the IQR method
+    /**
+     * Removes outliers from the equivalence classes using the IQR (Interquartile Range) method.
+     *
+     * Description:
+     *   This function filters out equivalence classes whose sizes are considered outliers.
+     *   Outliers are determined based on the IQR: any class with size below Q1 - 1.5*IQR
+     *   or above Q3 + 1.5*IQR is removed. The method updates the `classSizes` list.
+     *
+     * @throws IllegalStateException If equivalence classes have not been computed before calling this method.
+     */
+
     public void removeOutliers() {
         if (classSizes == null) {
             throw new IllegalStateException("Equivalence classes not computed. Call computeEquivalenceClasses() first.");
@@ -105,7 +139,20 @@ public class EquivalenceClasses {
             .collect(Collectors.toList());
     }
 
-    // Generate statistics for equivalence classes
+    /**
+     * Generates statistics for the equivalence classes.
+     *
+     * Description:
+     *   This function calculates summary statistics for the equivalence classes, including:
+     *     1. The total number of equivalence classes.
+     *     2. A distribution of equivalence class sizes (how many classes have each size).
+     *
+     * @return Map<String, Object> A map containing:
+     *         - "total_equivalence_classes": total number of classes.
+     *         - "size_distribution": a map of class sizes to their frequency.
+     * @throws IllegalStateException If equivalence classes have not been computed before calling this method.
+     */
+
     public Map<String, Object> generateStats() {
         if (classSizes == null) {
             throw new IllegalStateException("Equivalence classes not computed. Call computeEquivalenceClasses() first.");
@@ -121,6 +168,20 @@ public class EquivalenceClasses {
         stats.put("size_distribution", sizeCounts);
         return stats;
     }
+
+    /**
+     * Saves the equivalence class statistics to a JSON file.
+     *
+     * Description:
+     *   This function generates statistics for the equivalence classes and writes them 
+     *   to the specified JSON file. If the file does not exist, it is created; if it 
+     *   exists, the file is updated with the new statistics. The JSON output is formatted 
+     *   with pretty printing for readability.
+     *
+     * @param outputJsonFile The path to the JSON file where statistics will be saved.
+     * @throws IOException If there is an error creating or writing to the JSON file.
+     */
+
 
     public void saveStatsToJson(String outputJsonFile) throws IOException {
         Map<String, Object> stats = generateStats();

@@ -23,6 +23,24 @@ import java.util.stream.Collectors;
 
 public class DataAnalysis {
 
+    /**
+     * Generates analytics for an anonymized dataset and saves the results to a JSON file.
+     *
+     * Description:
+     *   This function extracts key statistics from an ARXResult object, including:
+     *     - Information loss
+     *     - Transformation node
+     *     - Number of suppressed records
+     *     - Total number of records
+     *     - Equivalence class sizes (smallest, largest, average)
+     *     - Number of equivalence classes
+     *   It then stores these metrics in a JSON object and writes/updates the file "analytics.json".
+     *
+     * @param result The ARXResult object containing the anonymization outcome.
+     * @return JSONObject A JSON object containing the computed analytics for the anonymized dataset.
+     * @throws IOException If there is an error reading or writing the JSON file.
+     */
+
     public static JSONObject analytics(ARXResult result) throws IOException {
         DataHandle outputhandle = result.getOutput();
         StatisticsEquivalenceClasses stats = outputhandle.getStatistics().getEquivalenceClassStatistics();

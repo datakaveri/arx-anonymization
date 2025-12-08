@@ -12,6 +12,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Suppress {
+    /**
+     * Suppresses specified columns in a CSV dataset by removing their values.
+     *
+     * @param datasetPath          Path to the input CSV file.
+     * @param attributesToSuppress An array of column names to suppress in the dataset.
+     * @throws IOException If there is an error reading or writing the CSV file.
+     */
+
     public static void suppression(String datasetPath, String[] attributesToSuppress) throws IOException {
         CsvParserSettings parserSettings = new CsvParserSettings();
         parserSettings.setSkipEmptyLines(true);  // Skip empty lines
@@ -42,6 +50,16 @@ public class Suppress {
             System.out.println("Suppressed dataset created successfully: suppressed.csv");
         }
     }
+
+    /**
+     * Creates a CsvWriter that writes a suppressed version of a CSV dataset.
+     *
+     * @param headers          The column headers for the CSV file.
+     * @param indicesToSuppress List of column indices that should be suppressed.
+     * @param allRows          The full dataset including headers, with each row as a String array.
+     * @return CsvWriter A CsvWriter object that has written all suppressed rows to the file.
+     * @throws IOException If there is an error creating or writing the CSV file.
+     */
 
     private static CsvWriter getCsvWriter(String[] headers, List<Integer> indicesToSuppress, List<String[]> allRows) throws IOException {
         List<String> newHeaders = new ArrayList();

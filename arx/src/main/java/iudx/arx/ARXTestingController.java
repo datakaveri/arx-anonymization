@@ -20,6 +20,23 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 
+/**
+ * ARXTestingController
+ * 
+ * REST controller that handles API requests for dataset anonymization using ARX.
+ *
+ * Description:
+ *   This controller receives HTTP requests containing anonymization parameters
+ *   (e.g., k-anonymity, suppression, pseudonymization, quasi-identifiers),
+ *   delegates the processing to ARXTestingService, and returns the anonymized
+ *   data or analytics results as JSON responses.
+ *
+ * Responsibilities:
+ *   - Accept input parameters from request bodies or query params
+ *   - Call ARXTestingService for anonymization logic
+ *   - Return anonymized datasets and statistics to the client
+ */
+
 @RestController
 @RequestMapping("/api/arx")
 public class ARXTestingController {

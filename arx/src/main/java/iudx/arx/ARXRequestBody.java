@@ -6,6 +6,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
 
+/**
+ * ARXRequestBody
+ *
+ * Data transfer object that captures user input for anonymization requests.
+ *
+ * Description:
+ *   This class defines the structure of the JSON payload sent by the client
+ *   when requesting anonymization. It carries all configuration details needed
+ *   by the service layer, such as dataset name, operations to perform, and
+ *   column-level parameters.
+ *
+ * Responsibilities:
+ *   - Store dataset details (e.g., file name, data type)
+ *   - Hold anonymization parameters (e.g., k value, suppression, pseudonymization)
+ *   - Capture quasi-identifiers, hierarchy levels, and bin widths
+ *   - Serve as a bridge between the client request and the ARXTestingService
+ */
+
+
 public class ARXRequestBody {
     private String dataset_name;
     private String datasetType;
